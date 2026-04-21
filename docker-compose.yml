@@ -1,0 +1,96 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Berlin Job Hub — docker-compose (local dev + Railway-ready)
+#
+# Quick start (connects to Supabase, no local DB needed):
+#   cp .env.example .env      # fill in your secrets
+#   docker compose up backend frontend
+#
+# Run crawler on demand:
+#   docker compose --profile crawler run --rm crawler python main.py --discover
+#
+# Full local stack with Postgres:
+#   docker compose --profile localdb up
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ─────────────────────────────────────────────
+  # Django API (Gunicorn)
+  # ─────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: berlinjob_backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: berlinjob.settings
+    ports:
+      - "8000:8000"
+    command:
+      - sh
+      - -c
+      - "python manage.py migrate --noinput && gunicorn berlinjob.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120"
+
+  # ─────────────────────────────────────────────
+  # React frontend (Nginx-served static build)
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL:      ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_API_BASE_URL:      ${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: berlinjob_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  # ─────────────────────────────────────────────
+  # Crawler (runs on demand / GitHub Actions cron)
+  # docker compose --profile crawler run --rm crawler python main.py --discover
+  # ─────────────────────────────────────────────
+  crawler:
+    build:
+      context: ./crawler
+      dockerfile: Dockerfile
+    container_name: berlinjob_crawler
+    restart: "no"
+    env_file: .env
+    profiles:
+      - crawler
+
+  # ─────────────────────────────────────────────
+  # Local Postgres (optional — prod uses Supabase)
+  # Start with: docker compose --profile localdb up
+  # ─────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: berlinjob_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-berlinjob}
+      POSTGRES_USER:     ${POSTGRES_USER:-berlinjob}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-berlinjob}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-berlinjob}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - localdb
+
+volumes:
+  postgres_data:

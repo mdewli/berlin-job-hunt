@@ -1,0 +1,142 @@
+[
+  {
+    "company": "Zalando SE",
+    "homepage": "https://www.zalando.de",
+    "city": "Berlin",
+    "size": "Enterprise",
+    "careers_url": "https://jobs.zalando.com/en/jobs"
+  },
+  {
+    "company": "HelloFresh SE",
+    "homepage": "https://www.hellofresh.com",
+    "city": "Berlin",
+    "size": "Enterprise",
+    "careers_url": "https://careers.hellofresh.com"
+  },
+  {
+    "company": "Delivery Hero SE",
+    "homepage": "https://www.deliveryhero.com",
+    "city": "Berlin",
+    "size": "Enterprise",
+    "careers_url": "https://careers.deliveryhero.com/global/en"
+  },
+  {
+    "company": "N26 GmbH",
+    "homepage": "https://www.n26.com",
+    "city": "Berlin",
+    "size": "Mid-size",
+    "careers_url": "https://n26.com/en-eu/careers"
+  },
+  {
+    "company": "Auto1 Group SE",
+    "homepage": "https://www.auto1-group.com",
+    "city": "Berlin",
+    "size": "Enterprise",
+    "careers_url": "https://www.auto1-group.com/jobs"
+  },
+  {
+    "company": "Contentful GmbH",
+    "homepage": "https://www.contentful.com",
+    "city": "Berlin",
+    "size": "Mid-size",
+    "careers_url": "https://www.contentful.com/careers"
+  },
+  {
+    "company": "GetYourGuide GmbH",
+    "homepage": "https://www.getyourguide.com",
+    "city": "Berlin",
+    "size": "Mid-size",
+    "careers_url": "https://www.getyourguide.careers"
+  },
+  {
+    "company": "SoundCloud GmbH",
+    "homepage": "https://soundcloud.com",
+    "city": "Berlin",
+    "size": "Mid-size",
+    "careers_url": "https://soundcloud.com/jobs"
+  },
+  {
+    "company": "Babbel GmbH",
+    "homepage": "https://www.babbel.com",
+    "city": "Berlin",
+    "size": "Mid-size",
+    "careers_url": "https://jobs.babbel.com"
+  },
+  {
+    "company": "Trade Republic Bank GmbH",
+    "homepage": "https://www.traderepublic.com",
+    "city": "Berlin",
+    "size": "Startup",
+    "careers_url": "https://traderepublic.com/careers"
+  },
+  {
+    "company": "Taxfix GmbH",
+    "homepage": "https://taxfix.de",
+    "city": "Berlin",
+    "size": "Startup",
+    "careers_url": "https://taxfix.de/en/careers"
+  },
+  {
+    "company": "Billie GmbH",
+    "homepage": "https://www.billie.io",
+    "city": "Berlin",
+    "size": "Startup",
+    "careers_url": "https://www.billie.io/careers"
+  },
+  {
+    "company": "Wolt GmbH",
+    "homepage": "https://wolt.com",
+    "city": "Berlin",
+    "size": "Mid-size",
+    "careers_url": "https://careers.wolt.com"
+  },
+  {
+    "company": "ResearchGate GmbH",
+    "homepage": "https://www.researchgate.net",
+    "city": "Berlin",
+    "size": "Startup",
+    "careers_url": "https://www.researchgate.net/careers"
+  },
+  {
+    "company": "Clark Germany GmbH",
+    "homepage": "https://www.clark.de",
+    "city": "Frankfurt",
+    "size": "Startup",
+    "careers_url": "https://www.clark.de/de/careers"
+  },
+  {
+    "company": "Personio GmbH",
+    "homepage": "https://www.personio.com",
+    "city": "Munich",
+    "size": "Mid-size",
+    "careers_url": "https://www.personio.com/about-personio/careers"
+  },
+  {
+    "company": "DeepL SE",
+    "homepage": "https://www.deepl.com",
+    "city": "Cologne",
+    "size": "Mid-size",
+    "careers_url": "https://www.deepl.com/en/careers"
+  },
+  {
+    "company": "About You GmbH",
+    "homepage": "https://corporate.aboutyou.de",
+    "city": "Hamburg",
+    "size": "Mid-size",
+    "careers_url": "https://corporate.aboutyou.de/en/jobs"
+  },
+  {
+    "company": "Thermondo GmbH",
+    "homepage": "https://www.thermondo.de",
+    "city": "Berlin",
+    "size": "Startup",
+    "careers_url": "https://www.thermondo.de/karriere"
+  },
+  {
+    "company": "Lano Software GmbH",
+    "homepage": "https://www.lano.io",
+    "city": "Berlin",
+    "size": "Startup",
+    "careers_url": null
+  }
+]
