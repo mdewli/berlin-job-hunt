@@ -5,7 +5,6 @@ on:
     # 6:00 AM UTC = 7:00 AM Berlin (CET) / 8:00 AM (CEST)
     - cron: '0 6 * * *'
   workflow_dispatch:
-    # Allow manual trigger from the GitHub Actions UI
     inputs:
       company_limit:
         description: 'Max companies to process (blank = all)'
@@ -16,7 +15,7 @@ jobs:
   discover:
     name: Crawl job boards
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -26,24 +25,52 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
+          cache: pip
           cache-dependency-path: crawler/requirements.txt
+
+      - name: Install system dependencies for Chromium
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libxkbcommon0 libxcomposite1 libxdamage1 \
+            libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 \
+            libcairo2 libasound2t64 libwayland-client0
 
       - name: Install Python dependencies
         run: pip install -r crawler/requirements.txt
 
-      - name: Install Playwright Chromium (used by Crawl4AI)
-        run: playwright install chromium --with-deps
+      # Crawl4AI 0.8.x uses patchright (a stealth fork of playwright).
+      # crawl4ai-setup installs the correct browser binary for whichever
+      # backend is active — safer than calling `playwright install` directly.
+      - name: Install browser via crawl4ai-setup
+        run: crawl4ai-setup
+        env:
+          CRAWL4AI_VERBOSE: "false"
+
+      - name: Verify DB connectivity
+        env:
+          PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        run: |
+          sudo apt-get install -y postgresql-client -q
+          psql \
+            "host=${{ secrets.POSTGRES_HOST }} \
+             port=${{ secrets.POSTGRES_PORT }} \
+             dbname=${{ secrets.POSTGRES_DB }} \
+             user=${{ secrets.POSTGRES_USER }} \
+             sslmode=require" \
+            -c "SELECT count(*) FROM public.companies WHERE job_board_url IS NOT NULL;" \
+            || echo "WARNING: Could not connect to DB or no companies seeded yet."
 
       - name: Run discovery
         env:
-          DEEPSEEK_API_KEY:    ${{ secrets.DEEPSEEK_API_KEY }}
-          POSTGRES_HOST:       ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT:       ${{ secrets.POSTGRES_PORT }}
-          POSTGRES_DB:         ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER:       ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD:   ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_SSLMODE:    require
+          DEEPSEEK_API_KEY:  ${{ secrets.DEEPSEEK_API_KEY }}
+          POSTGRES_HOST:     ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT:     ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_DB:       ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER:     ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_SSLMODE:  require
         run: |
           cd crawler
           LIMIT="${{ github.event.inputs.company_limit }}"
@@ -57,5 +84,8 @@ jobs:
         if: always()
         run: |
           echo "### Crawl run complete" >> $GITHUB_STEP_SUMMARY
-          echo "Triggered by: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "Time: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Time (UTC) | $(date -u) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Company limit | ${{ github.event.inputs.company_limit || 'all' }} |" >> $GITHUB_STEP_SUMMARY
