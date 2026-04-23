@@ -2,6 +2,10 @@
 {"name": "HelloFresh", "homepage": "https://hellofresh.com", "job_board_url": "https://careers.hellofresh.com/global/en/search-results", "ats_type": "workday", "city": "Berlin", "size": "Enterprise"}
 {"name": "Delivery Hero", "homepage": "https://deliveryhero.com", "job_board_url": "https://careers.deliveryhero.com/global/en/search-results", "ats_type": "workday", "city": "Berlin", "size": "Enterprise"}
 {"name": "Auto1 Group", "homepage": "https://auto1-group.com", "job_board_url": "https://www.auto1-group.com/jobs/", "ats_type": "greenhouse", "city": "Berlin", "size": "Enterprise"}
+{"name": "Scout24", "homepage": "https://scout24.com", "job_board_url": "https://www.scout24.com/en/career/job-offers", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Axel Springer", "homepage": "https://axelspringer.com", "job_board_url": "https://www.axelspringer.com/en/career/job-finder", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "ImmobilienScout24", "homepage": "https://immobilienscout24.de", "job_board_url": "https://boards.greenhouse.io/immobilienscout24", "ats_type": "greenhouse", "city": "Berlin", "size": "Enterprise"}
+{"name": "IONOS", "homepage": "https://ionos.com", "job_board_url": "https://www.ionos-group.com/career", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
 {"name": "N26", "homepage": "https://n26.com", "job_board_url": "https://n26.com/en-eu/careers/positions", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
 {"name": "Trade Republic", "homepage": "https://traderepublic.com", "job_board_url": "https://traderepublic.com/careers", "ats_type": "ashby", "city": "Berlin", "size": "Mid-size"}
 {"name": "SumUp", "homepage": "https://sumup.com", "job_board_url": "https://sumup.com/careers/positions/", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
@@ -10,11 +14,76 @@
 {"name": "Wolt", "homepage": "https://wolt.com", "job_board_url": "https://careers.wolt.com/en/jobs", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
 {"name": "Blinkist", "homepage": "https://blinkist.com", "job_board_url": "https://www.blinkist.com/jobs", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "idealo", "homepage": "https://idealo.de", "job_board_url": "https://www.idealo.de/jobs/", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
-{"name": "Scout24", "homepage": "https://scout24.com", "job_board_url": "https://www.scout24.com/en/career/job-offers", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
-{"name": "Ecosia", "homepage": "https://ecosia.org", "job_board_url": "https://jobs.ecosia.org/", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
-{"name": "ResearchGate", "homepage": "https://researchgate.net", "job_board_url": "https://www.researchgate.net/jobs", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
 {"name": "Personio", "homepage": "https://personio.com", "job_board_url": "https://www.personio.com/about-personio/careers/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "Klarna", "homepage": "https://klarna.com", "job_board_url": "https://www.klarna.com/careers/jobs/", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
 {"name": "Adjust", "homepage": "https://adjust.com", "job_board_url": "https://www.adjust.com/company/careers/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "ResearchGate", "homepage": "https://researchgate.net", "job_board_url": "https://www.researchgate.net/jobs", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
+{"name": "GetYourGuide", "homepage": "https://getyourguide.com", "job_board_url": "https://boards.greenhouse.io/getyourguide", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Commercetools", "homepage": "https://commercetools.com", "job_board_url": "https://commercetools.com/careers/jobs", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Raisin", "homepage": "https://raisin.com", "job_board_url": "https://boards.greenhouse.io/raisin", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Mambu", "homepage": "https://mambu.com", "job_board_url": "https://boards.greenhouse.io/mambu", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Forto", "homepage": "https://forto.com", "job_board_url": "https://boards.greenhouse.io/forto", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "smava", "homepage": "https://smava.de", "job_board_url": "https://www.smava.de/ueber-smava/jobs/", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
+{"name": "Flaconi", "homepage": "https://flaconi.de", "job_board_url": "https://boards.greenhouse.io/flaconi", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Relex Solutions", "homepage": "https://relexsolutions.com", "job_board_url": "https://boards.greenhouse.io/relexsolutions", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "AMBOSS", "homepage": "https://amboss.com", "job_board_url": "https://boards.greenhouse.io/amboss", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Doctolib", "homepage": "https://doctolib.com", "job_board_url": "https://careers.doctolib.com/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Spendesk", "homepage": "https://spendesk.com", "job_board_url": "https://boards.greenhouse.io/spendesk", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Billie", "homepage": "https://billie.io", "job_board_url": "https://boards.greenhouse.io/billie", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Blacklane", "homepage": "https://blacklane.com", "job_board_url": "https://boards.greenhouse.io/blacklane", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Tourlane", "homepage": "https://tourlane.com", "job_board_url": "https://boards.greenhouse.io/tourlane", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Aroundhome", "homepage": "https://aroundhome.de", "job_board_url": "https://boards.greenhouse.io/aroundhome", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "KRY", "homepage": "https://kry.se", "job_board_url": "https://boards.greenhouse.io/kry", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Homeday", "homepage": "https://homeday.de", "job_board_url": "https://boards.greenhouse.io/homeday", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Urban Sports Club", "homepage": "https://urbansportsclub.com", "job_board_url": "https://jobs.lever.co/urbansportsclub", "ats_type": "lever", "city": "Berlin", "size": "Mid-size"}
+{"name": "Ecosia", "homepage": "https://ecosia.org", "job_board_url": "https://jobs.ecosia.org/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "Taxfix", "homepage": "https://taxfix.de", "job_board_url": "https://taxfix.de/en/careers/", "ats_type": "lever", "city": "Berlin", "size": "Startup"}
+{"name": "Wefox", "homepage": "https://wefox.com", "job_board_url": "https://boards.greenhouse.io/wefox", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Pitch", "homepage": "https://pitch.com", "job_board_url": "https://pitch.com/jobs", "ats_type": "ashby", "city": "Berlin", "size": "Startup"}
+{"name": "Grover", "homepage": "https://grover.com", "job_board_url": "https://boards.greenhouse.io/grover", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Spryker", "homepage": "https://spryker.com", "job_board_url": "https://jobs.lever.co/spryker", "ats_type": "lever", "city": "Berlin", "size": "Startup"}
+{"name": "Zenjob", "homepage": "https://zenjob.com", "job_board_url": "https://boards.greenhouse.io/zenjob", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Choco", "homepage": "https://choco.com", "job_board_url": "https://boards.greenhouse.io/choco", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Enpal", "homepage": "https://enpal.de", "job_board_url": "https://boards.greenhouse.io/enpal", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Tier Mobility", "homepage": "https://tier.app", "job_board_url": "https://boards.greenhouse.io/tier", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Vivid Money", "homepage": "https://vivid.money", "job_board_url": "https://boards.greenhouse.io/vividmoney", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Moss", "homepage": "https://getmoss.com", "job_board_url": "https://jobs.ashbyhq.com/moss", "ats_type": "ashby", "city": "Berlin", "size": "Startup"}
+{"name": "Parloa", "homepage": "https://parloa.com", "job_board_url": "https://boards.greenhouse.io/parloa", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Ada Health", "homepage": "https://ada.com", "job_board_url": "https://boards.greenhouse.io/adahealth", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Vara", "homepage": "https://vara.ai", "job_board_url": "https://jobs.ashbyhq.com/vara", "ats_type": "ashby", "city": "Berlin", "size": "Startup"}
+{"name": "Bonify", "homepage": "https://bonify.de", "job_board_url": "https://boards.greenhouse.io/bonify", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Ostrom", "homepage": "https://ostrom.de", "job_board_url": "https://jobs.ashbyhq.com/ostrom", "ats_type": "ashby", "city": "Berlin", "size": "Startup"}
+{"name": "Solaris", "homepage": "https://solarisgroup.com", "job_board_url": "https://boards.greenhouse.io/solarisgroup", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Wooga", "homepage": "https://wooga.com", "job_board_url": "https://boards.greenhouse.io/wooga", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Liqid", "homepage": "https://liqid.de", "job_board_url": "https://boards.greenhouse.io/liqid", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Civey", "homepage": "https://civey.com", "job_board_url": "https://jobs.lever.co/civey", "ats_type": "lever", "city": "Berlin", "size": "Startup"}
+{"name": "McMakler", "homepage": "https://mcmakler.de", "job_board_url": "https://mcmakler.de/jobs", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "Hawk AI", "homepage": "https://hawk.ai", "job_board_url": "https://boards.greenhouse.io/hawkai", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Merantix", "homepage": "https://merantix.com", "job_board_url": "https://merantix.com/company/careers/", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "CoachHub", "homepage": "https://coachhub.com", "job_board_url": "https://boards.greenhouse.io/coachhub", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Coachhub", "homepage": "https://coachhub.io", "job_board_url": "https://boards.greenhouse.io/coachhub", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "simplesurance", "homepage": "https://simplesurance.de", "job_board_url": "https://simplesurance.de/en/jobs", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "OpenProject", "homepage": "https://openproject.org", "job_board_url": "https://www.openproject.org/careers/", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "Waterdrop", "homepage": "https://waterdrop.de", "job_board_url": "https://boards.greenhouse.io/waterdrop", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
 {"name": "Gorillas", "homepage": "https://gorillas.io", "job_board_url": "https://gorillas.io/en/jobs", "ats_type": "lever", "city": "Berlin", "size": "Startup"}
+{"name": "DeepL", "homepage": "https://deepl.com", "job_board_url": "https://jobs.deepl.com/", "ats_type": "greenhouse", "city": "Cologne", "size": "Mid-size"}
+{"name": "Celonis", "homepage": "https://celonis.com", "job_board_url": "https://boards.greenhouse.io/celonis", "ats_type": "greenhouse", "city": "Munich", "size": "Enterprise"}
+{"name": "Aleph Alpha", "homepage": "https://aleph-alpha.com", "job_board_url": "https://aleph-alpha.com/career/", "ats_type": "custom", "city": "Heidelberg", "size": "Startup"}
+{"name": "Cognigy", "homepage": "https://cognigy.com", "job_board_url": "https://boards.greenhouse.io/cognigy", "ats_type": "greenhouse", "city": "Düsseldorf", "size": "Mid-size"}
+{"name": "TeamViewer", "homepage": "https://teamviewer.com", "job_board_url": "https://www.teamviewer.com/en/jobs/", "ats_type": "custom", "city": "Göppingen", "size": "Enterprise"}
+{"name": "ABOUT YOU", "homepage": "https://aboutyou.com", "job_board_url": "https://corporate.aboutyou.de/en/jobs/open-positions", "ats_type": "custom", "city": "Hamburg", "size": "Enterprise"}
+{"name": "Statista", "homepage": "https://statista.com", "job_board_url": "https://de.statista.com/page/1/statista-career/", "ats_type": "custom", "city": "Hamburg", "size": "Mid-size"}
+{"name": "Xentral", "homepage": "https://xentral.com", "job_board_url": "https://xentral.com/en/careers", "ats_type": "custom", "city": "Augsburg", "size": "Startup"}
+{"name": "Jimdo", "homepage": "https://jimdo.com", "job_board_url": "https://boards.greenhouse.io/jimdo", "ats_type": "greenhouse", "city": "Hamburg", "size": "Mid-size"}
+{"name": "REWE Digital", "homepage": "https://rewe-digital.com", "job_board_url": "https://rewe-digital.com/karriere/jobs.html", "ats_type": "custom", "city": "Cologne", "size": "Enterprise"}
+{"name": "FlixBus", "homepage": "https://flixbus.com", "job_board_url": "https://boards.greenhouse.io/flixmobility", "ats_type": "greenhouse", "city": "Munich", "size": "Enterprise"}
+{"name": "Demodesk", "homepage": "https://demodesk.com", "job_board_url": "https://boards.greenhouse.io/demodesk", "ats_type": "greenhouse", "city": "Munich", "size": "Startup"}
+{"name": "Check24", "homepage": "https://check24.de", "job_board_url": "https://www.check24.de/jobs/", "ats_type": "custom", "city": "Munich", "size": "Enterprise"}
+{"name": "Auxmoney", "homepage": "https://auxmoney.com", "job_board_url": "https://www.auxmoney.com/karriere/", "ats_type": "custom", "city": "Düsseldorf", "size": "Mid-size"}
+{"name": "Deposit Solutions", "homepage": "https://deposit-solutions.com", "job_board_url": "https://boards.greenhouse.io/depositsolutions", "ats_type": "greenhouse", "city": "Hamburg", "size": "Mid-size"}
+{"name": "Spreadshirt", "homepage": "https://spreadshirt.com", "job_board_url": "https://www.spreadshirt.de/jobs", "ats_type": "custom", "city": "Leipzig", "size": "Mid-size"}
+{"name": "Nuri", "homepage": "https://nuri.com", "job_board_url": "https://boards.greenhouse.io/nuri", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "FinLeap", "homepage": "https://finleap.com", "job_board_url": "https://finleap.com/careers/", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "Dalia Research", "homepage": "https://dalia-research.com", "job_board_url": "https://boards.greenhouse.io/daliaresearch", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Clark", "homepage": "https://clark.de", "job_board_url": "https://boards.greenhouse.io/clark", "ats_type": "greenhouse", "city": "Frankfurt", "size": "Startup"}
+{"name": "Friendsurance", "homepage": "https://friendsurance.com", "job_board_url": "https://www.friendsurance.com/about/jobs", "ats_type": "custom", "city": "Berlin", "size": "Startup"}

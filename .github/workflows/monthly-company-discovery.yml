@@ -1,21 +1,21 @@
-name: Daily Job Discovery
+name: Monthly Company Discovery
 
 on:
   schedule:
-    # 6:00 AM UTC = 7:00 AM Berlin (CET) / 8:00 AM (CEST)
-    - cron: '0 6 * * *'
+    # 1st of every month at 2:00 AM UTC
+    - cron: '0 2 1 * *'
   workflow_dispatch:
     inputs:
-      company_limit:
-        description: 'Max companies to process (blank = all)'
+      limit:
+        description: 'Max companies to upsert (blank = no limit)'
         required: false
         default: ''
 
 jobs:
-  discover:
-    name: Crawl job boards
+  discover-companies:
+    name: Discover and seed companies
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -40,43 +40,27 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r crawler/requirements.txt
 
-      # Crawl4AI 0.8.x uses patchright (a stealth fork of playwright).
-      # crawl4ai-setup installs the correct browser binary for whichever
-      # backend is active — safer than calling `playwright install` directly.
       - name: Install browser via crawl4ai-setup
         run: crawl4ai-setup
         env:
           CRAWL4AI_VERBOSE: "false"
 
-      - name: Verify DB connectivity (IPv4 check)
+      - name: Verify DB connectivity
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
           sudo apt-get install -y postgresql-client dnsutils -q
-
-          # GitHub Actions runners have no IPv6. Supabase's direct connection
-          # (db.xxx.supabase.co) resolves to IPv6 on the free tier and will fail.
-          # The fix: use the Supabase Session Mode Pooler host in your secrets
-          # (Supabase dashboard → Settings → Database → Connection pooling → Session mode).
-          # The pooler host (aws-0-xx.pooler.supabase.com) always resolves to IPv4.
-
           HOST="${{ secrets.POSTGRES_HOST }}"
           IPV4=$(dig +short A "$HOST" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
           if [ -z "$IPV4" ]; then
-            echo "ERROR: $HOST has no IPv4 address. GitHub Actions runners cannot reach IPv6-only hosts."
-            echo "Fix: In Supabase → Settings → Database → Connection pooling, copy the Session mode host"
-            echo "     and update the POSTGRES_HOST GitHub secret to that pooler address."
+            echo "ERROR: $HOST has no IPv4 address. Use the Supabase Session Pooler host."
             exit 1
           fi
-          echo "OK: $HOST resolves to IPv4 ($IPV4)"
+          echo "OK: $HOST → $IPV4"
+          psql "host=$HOST port=${{ secrets.POSTGRES_PORT }} dbname=${{ secrets.POSTGRES_DB }} user=${{ secrets.POSTGRES_USER }} sslmode=require" \
+            -c "SELECT count(*) AS current_companies FROM public.companies;"
 
-          psql \
-            "host=$HOST port=${{ secrets.POSTGRES_PORT }} \
-             dbname=${{ secrets.POSTGRES_DB }} user=${{ secrets.POSTGRES_USER }} \
-             sslmode=require" \
-            -c "SELECT count(*) AS seeded_companies FROM public.companies WHERE job_board_url IS NOT NULL;"
-
-      - name: Run discovery
+      - name: Run company discovery
         env:
           DEEPSEEK_API_KEY:  ${{ secrets.DEEPSEEK_API_KEY }}
           POSTGRES_HOST:     ${{ secrets.POSTGRES_HOST }}
@@ -87,19 +71,19 @@ jobs:
           POSTGRES_SSLMODE:  require
         run: |
           cd crawler
-          LIMIT="${{ github.event.inputs.company_limit }}"
+          LIMIT="${{ github.event.inputs.limit }}"
           if [ -n "$LIMIT" ]; then
-            python main.py --discover --company-limit "$LIMIT"
+            python main.py --discover-companies --limit "$LIMIT"
           else
-            python main.py --discover
+            python main.py --discover-companies
           fi
 
       - name: Report summary
         if: always()
         run: |
-          echo "### Crawl run complete" >> $GITHUB_STEP_SUMMARY
+          echo "### Company discovery complete" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| Triggered by | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Time (UTC) | $(date -u) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Company limit | ${{ github.event.inputs.company_limit || 'all' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Limit | ${{ github.event.inputs.limit || 'none' }} |" >> $GITHUB_STEP_SUMMARY

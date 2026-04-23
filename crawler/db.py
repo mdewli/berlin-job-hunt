@@ -162,6 +162,62 @@ def insert_job_posting(
 
 
 # ---------------------------------------------------------------------------
+# Stale-job management
+# ---------------------------------------------------------------------------
+
+def get_stale_jobs(conn, *, days_old: int = 14, include_unknown: bool = True) -> list[dict]:
+    """
+    Return active job postings that are candidates for deactivation:
+      - title = 'Unknown'  (crawled a dead/cookie-wall page)
+      - scraped_at older than `days_old` days
+    """
+    conditions = []
+    if include_unknown:
+        conditions.append("title = 'Unknown'")
+    conditions.append(f"scraped_at < NOW() - INTERVAL '{days_old} days'")
+    where = " OR ".join(f"({c})" for c in conditions)
+
+    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(
+            f"""
+            SELECT id, title, apply_url, scraped_at
+            FROM public.job_postings
+            WHERE is_active = true AND ({where})
+            ORDER BY scraped_at ASC
+            """
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
+def deactivate_job(conn, job_id: str) -> None:
+    """Set is_active = false for a single job posting."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE public.job_postings SET is_active = false, updated_at = now() WHERE id = %s",
+            (job_id,),
+        )
+    logger.info("Deactivated job %s", job_id)
+
+
+def bulk_deactivate_unknown(conn) -> int:
+    """
+    Immediately deactivate all jobs with title = 'Unknown'.
+    Returns the number of rows deactivated.
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE public.job_postings
+            SET is_active = false, updated_at = now()
+            WHERE is_active = true AND title = 'Unknown'
+            """
+        )
+        count = cur.rowcount
+    logger.info("Bulk-deactivated %d Unknown-title jobs", count)
+    return count
+
+
+# ---------------------------------------------------------------------------
 # Company queries (used by the discover pipeline)
 # ---------------------------------------------------------------------------
 

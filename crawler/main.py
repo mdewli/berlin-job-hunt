@@ -21,6 +21,10 @@ Automated discovery (crawl every active company's job board):
     python main.py --discover
     python main.py --discover --company-limit 5   # process only first N companies
 
+Auto-discover new companies from aggregator sites:
+    python main.py --discover-companies
+    python main.py --discover-companies --limit 200
+
 Environment variables required:
     DEEPSEEK_API_KEY
     POSTGRES_HOST / POSTGRES_PORT / POSTGRES_DB / POSTGRES_USER / POSTGRES_PASSWORD
@@ -49,12 +53,16 @@ load_dotenv()
 sys.path.insert(0, str(Path(__file__).parent))
 from db import (
     get_active_companies,
+    get_stale_jobs,
+    deactivate_job,
+    bulk_deactivate_unknown,
     save_job,
     update_last_crawled,
     upsert_company_seed,
     get_connection,
 )
 from discover import discover_jobs
+from company_discovery import discover_companies
 from utils.ai_extractor import extract_job_data
 from utils.fetch import fetch_markdown
 from utils.normalization import normalize_company, normalize_name, clean_url
@@ -100,6 +108,19 @@ async def process_job(
     )
     logger.debug("tech_stack: %s", extracted["tech_stack"])
     logger.debug("languages:  %s", extracted["languages"])
+
+    # ── Dead-link guard ───────────────────────────────────────────────────────
+    # If DeepSeek couldn't extract a title the page was almost certainly a
+    # cookie wall, "job not found" redirect, or empty SPA shell.
+    # Don't pollute the DB with useless rows.
+    if extracted["title"] == "Unknown":
+        logger.warning(
+            "Skipping %s — title is Unknown (dead link / cookie wall / empty page). "
+            "Markdown was %d chars.",
+            url, len(markdown),
+        )
+        return None
+    # ─────────────────────────────────────────────────────────────────────────
 
     normed = normalize_company(company_name, homepage)
 
@@ -292,6 +313,67 @@ async def run_discover(company_limit: int | None = None) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Stale-job checker
+# ---------------------------------------------------------------------------
+
+async def run_check_stale(days_old: int = 14) -> None:
+    """
+    1. Immediately deactivate all jobs with title = 'Unknown'.
+    2. For jobs older than `days_old` days, fire a cheap HEAD request.
+       If the server returns 404 → deactivate.
+    """
+    import aiohttp
+
+    # Phase 1: bulk-remove Unknown-title junk
+    with get_connection() as conn:
+        removed = bulk_deactivate_unknown(conn)
+    logger.info("Phase 1: deactivated %d Unknown-title jobs.", removed)
+
+    # Phase 2: HTTP liveness check on old postings
+    with get_connection() as conn:
+        stale = get_stale_jobs(conn, days_old=days_old, include_unknown=False)
+
+    if not stale:
+        logger.info("Phase 2: no jobs older than %d days — nothing to check.", days_old)
+        return
+
+    logger.info("Phase 2: checking %d old job URLs for liveness...", len(stale))
+
+    semaphore = asyncio.Semaphore(10)
+    deactivated = 0
+
+    async def check_one(job: dict) -> bool:
+        """Return True if the URL is dead (404) and was deactivated."""
+        async with semaphore:
+            url = job["apply_url"]
+            try:
+                timeout = aiohttp.ClientTimeout(total=12)
+                headers = {"User-Agent": "Mozilla/5.0 (compatible; BerlinJobHub/1.0)"}
+                async with aiohttp.ClientSession(headers=headers) as session:
+                    async with session.head(url, allow_redirects=True, timeout=timeout) as resp:
+                        if resp.status == 404:
+                            logger.info("Dead (404): %s — deactivating.", url)
+                            with get_connection() as conn:
+                                deactivate_job(conn, str(job["id"]))
+                            return True
+                        logger.debug("Alive (%d): %s", resp.status, url)
+                        return False
+            except asyncio.TimeoutError:
+                logger.debug("Timeout (assumed alive): %s", url)
+                return False
+            except Exception as exc:
+                logger.debug("Error checking %s: %s (assumed alive)", url, exc)
+                return False
+
+    results = await asyncio.gather(*(check_one(j) for j in stale))
+    deactivated = sum(1 for r in results if r)
+    logger.info(
+        "Stale check complete: %d/%d jobs deactivated.",
+        deactivated, len(stale),
+    )
+
+
+# ---------------------------------------------------------------------------
 # CLI entry point
 # ---------------------------------------------------------------------------
 
@@ -302,11 +384,15 @@ def parse_args() -> argparse.Namespace:
         epilog=__doc__,
     )
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--url",      help="Single job posting URL to crawl")
-    mode.add_argument("--batch",    help="Path to .jsonl file with batch targets")
-    mode.add_argument("--seed",     help="Path to companies_seed.jsonl to load into DB")
-    mode.add_argument("--discover", action="store_true",
+    mode.add_argument("--url",          help="Single job posting URL to crawl")
+    mode.add_argument("--batch",        help="Path to .jsonl file with batch targets")
+    mode.add_argument("--seed",         help="Path to companies_seed.jsonl to load into DB")
+    mode.add_argument("--discover",     action="store_true",
                       help="Crawl all active companies job boards and save postings")
+    mode.add_argument("--check-stale",  action="store_true",
+                      help="Deactivate Unknown-title jobs and 404 old postings")
+    mode.add_argument("--discover-companies", action="store_true",
+                      help="Auto-discover companies from aggregator sites and seed the DB")
 
     parser.add_argument("--company",       help="Company display name (required with --url)")
     parser.add_argument("--homepage",      help="Company homepage URL (required with --url)")
@@ -316,6 +402,10 @@ def parse_args() -> argparse.Namespace:
                         help="Seconds to wait for JS rendering (default: 3.0)")
     parser.add_argument("--company-limit", type=int, default=None,
                         help="Max number of companies to process in --discover mode")
+    parser.add_argument("--limit",          type=int, default=None,
+                        help="Max companies to upsert in --discover-companies mode")
+    parser.add_argument("--days-old",      type=int, default=14,
+                        help="Jobs older than N days are checked for staleness (default: 14)")
     parser.add_argument("--dry-run",       action="store_true",
                         help="Crawl and extract but do NOT write to the database")
     return parser.parse_args()
@@ -327,6 +417,17 @@ async def main() -> None:
     # --- Seed mode ---
     if args.seed:
         await run_seed(args.seed)
+        return
+
+    # --- Discover-companies mode ---
+    if args.discover_companies:
+        count = await discover_companies(limit=args.limit)
+        print(f"Company discovery complete: {count} companies upserted.")
+        return
+
+    # --- Stale check mode ---
+    if args.check_stale:
+        await run_check_stale(days_old=args.days_old)
         return
 
     # --- Discover mode ---
