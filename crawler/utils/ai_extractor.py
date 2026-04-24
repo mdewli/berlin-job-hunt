@@ -7,7 +7,8 @@ from a scraped Markdown string.
 Returned schema
 ---------------
 {
-    "title":                str,   # Job title, e.g. "Senior Backend Engineer"
+    "title":                str,   # Job title
+    "location_raw":         str,   # Exact role location from the posting
     "role_category":        str,   # One of ROLE_CATEGORIES
     "tech_stack":           list,  # ["Python", "PostgreSQL", "dbt"]
     "languages":            dict,  # {"german": "B2", "english": "C1"}
@@ -30,28 +31,17 @@ logger = logging.getLogger(__name__)
 # Taxonomy
 # ---------------------------------------------------------------------------
 ROLE_CATEGORIES = [
-    "Backend",
-    "Frontend",
-    "Full-Stack",
-    "Data Science",
-    "Data Engineering",
-    "Machine Learning / AI",
-    "DevOps / SRE",
-    "Mobile",
-    "Product",
-    "Design",
-    "QA / Testing",
-    "Security",
-    "Management",
-    "Sales / Marketing",
-    "Operations",
-    "Other",
+    "Backend", "Frontend", "Full-Stack",
+    "Data Science", "Data Engineering", "Machine Learning / AI",
+    "DevOps / SRE", "Mobile", "Product", "Design",
+    "QA / Testing", "Security", "Management",
+    "Sales / Marketing", "Operations", "Other",
 ]
 
 CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"]
 
 # ---------------------------------------------------------------------------
-# System prompt — verbose and example-rich for reliability
+# System prompt
 # ---------------------------------------------------------------------------
 _SYSTEM_PROMPT = """You are a structured data extractor for a Berlin tech job board.
 Given the Markdown of a single job posting page, return ONE raw JSON object.
@@ -61,125 +51,119 @@ No prose, no markdown fences, no explanation — only the JSON.
 FIELD 1 — title  (string)
 ════════════════════════════════════════════════════════
 The job title as written in the posting.
-
 Rules:
 • Look first at the page <title>, the first H1, or the first H2.
-• Strip company name suffixes from page titles:
-    "Senior Backend Engineer | Zalando"  →  "Senior Backend Engineer"
-    "Data Analyst (m/f/d) — HelloFresh"  →  "Data Analyst"
-    "(Senior) ML Engineer"               →  "ML Engineer"
-• The gender suffix (m/f/d), (m/w/d), (all genders) is noise — remove it.
-• If the page has no recognisable job title (cookie wall, 404, redirect),
-  return "Unknown". Otherwise NEVER return "Unknown".
+• Strip company name suffixes: "Senior Engineer | Zalando" → "Senior Engineer"
+• Remove gender suffixes: (m/f/d), (m/w/d), (all genders)
+• If the page has no recognisable job title (cookie wall, 404, redirect) → "Unknown"
 
 ════════════════════════════════════════════════════════
-FIELD 2 — role_category  (string, pick exactly ONE)
+FIELD 2 — location_raw  (string)
 ════════════════════════════════════════════════════════
-Categories and example titles:
+The EXACT location of THIS SPECIFIC ROLE — not the company headquarters.
 
-Backend            → Software Engineer, Backend Developer, Python Developer,
-                     Java Engineer, API Developer, Platform Engineer (non-infra)
+Look for sections labelled: "Location", "Where you'll work", "Office",
+"Job location", "Standort", "Arbeitsort", "Einsatzort".
+
+⚠️  CRITICAL: Many global companies mention their Berlin HQ in the company
+description. DO NOT use that as the job location. Only use the location
+explicitly stated for this role.
+
+Examples:
+  "Berlin, Germany"          ← correct for a Berlin role
+  "Toronto, Canada"          ← correct for a Canada role
+  "Remote (Germany only)"    ← correct for Germany-remote
+  "Hybrid — Berlin"          ← correct for hybrid Berlin
+  "New York, USA"            ← correct for a US role
+  "Worldwide Remote"         ← correct for fully global remote
+
+If no specific role location is stated → "Not specified"
+
+════════════════════════════════════════════════════════
+FIELD 3 — role_category  (string, pick exactly ONE)
+════════════════════════════════════════════════════════
+Backend            → Software Engineer, Backend Developer, Python Developer, Java Engineer
 Frontend           → Frontend Developer, React Engineer, UI Engineer, Vue Developer
-Full-Stack         → Full-Stack Developer, Web Developer, Software Engineer (Full-Stack)
-Data Science       → Data Scientist, Data Analyst, Business Intelligence Analyst,
-                     Analytics Engineer, BI Developer
-Data Engineering   → Data Engineer, ETL Developer, Analytics Engineer (pipelines),
-                     dbt Developer, Spark Engineer
-Machine Learning / AI → ML Engineer, AI Engineer, NLP Engineer, Computer Vision,
-                     Research Scientist, Applied Scientist
-DevOps / SRE       → DevOps Engineer, SRE, Cloud Engineer, Infrastructure Engineer,
-                     Platform Engineer (infra), Kubernetes Engineer
+Full-Stack         → Full-Stack Developer, Web Developer
+Data Science       → Data Scientist, Data Analyst, BI Analyst, Analytics Engineer
+Data Engineering   → Data Engineer, ETL Developer, dbt Developer, Spark Engineer
+Machine Learning / AI → ML Engineer, AI Engineer, NLP Engineer, Research Scientist
+DevOps / SRE       → DevOps Engineer, SRE, Cloud Engineer, Kubernetes Engineer
 Mobile             → iOS Developer, Android Developer, React Native, Flutter
 Product            → Product Manager, Product Owner, Product Analyst
 Design             → UX Designer, UI Designer, Product Designer, UX Researcher
-QA / Testing       → QA Engineer, Test Engineer, SDET, Quality Assurance
-Security           → Security Engineer, Penetration Tester, AppSec, InfoSec
+QA / Testing       → QA Engineer, Test Engineer, SDET
+Security           → Security Engineer, Penetration Tester, AppSec
 Management         → Engineering Manager, VP Engineering, CTO, Tech Lead
 Sales / Marketing  → Sales Engineer, Growth Manager, Marketing Analyst
 Operations         → Operations Manager, Business Analyst, Project Manager
 Other              → anything that does not fit above
 
 ════════════════════════════════════════════════════════
-FIELD 3 — tech_stack  (array of strings)
+FIELD 4 — tech_stack  (array of strings)
 ════════════════════════════════════════════════════════
-All specific technologies mentioned: languages, frameworks, databases,
-cloud platforms, data tools, DevOps tools.
-
-Capitalisation rules (apply consistently):
-  python      → Python          javascript → JavaScript    typescript → TypeScript
-  golang      → Go              rust       → Rust          java       → Java
-  kotlin      → Kotlin          scala      → Scala         ruby       → Ruby
-  react       → React           vue        → Vue.js        angular    → Angular
-  django      → Django          fastapi    → FastAPI       flask      → Flask
-  postgresql  → PostgreSQL      mysql      → MySQL         mongodb    → MongoDB
-  redis       → Redis           elasticsearch → Elasticsearch
-  kafka       → Kafka           rabbitmq   → RabbitMQ      spark      → Apache Spark
-  dbt         → dbt             airflow    → Apache Airflow
-  aws         → AWS             gcp        → GCP           azure      → Azure
-  kubernetes  → Kubernetes      docker     → Docker        terraform  → Terraform
-  github actions → GitHub Actions  jenkins → Jenkins       gitlab ci → GitLab CI
-  pytorch     → PyTorch         tensorflow → TensorFlow    sklearn    → scikit-learn
-
-Scan ALL sections: requirements, nice-to-haves, tech environment, about us.
-Return [] only if the posting mentions ZERO technologies.
+All technologies mentioned: languages, frameworks, databases, cloud, DevOps tools.
+Capitalise consistently:
+  python→Python  javascript→JavaScript  typescript→TypeScript  golang→Go
+  react→React  vue→Vue.js  angular→Angular  django→Django  fastapi→FastAPI
+  postgresql→PostgreSQL  mysql→MySQL  mongodb→MongoDB  redis→Redis
+  kafka→Kafka  spark→Apache Spark  dbt→dbt  airflow→Apache Airflow
+  aws→AWS  gcp→GCP  azure→Azure  kubernetes→Kubernetes  docker→Docker
+  terraform→Terraform  pytorch→PyTorch  tensorflow→TensorFlow
+Scan ALL sections including nice-to-haves. Return [] only if ZERO technologies.
 
 ════════════════════════════════════════════════════════
-FIELD 4 — languages  (object: language → CEFR level)
+FIELD 5 — languages  (object: language → CEFR level)
 ════════════════════════════════════════════════════════
-Keys are lowercase language names. Values are CEFR levels: A1 A2 B1 B2 C1 C2.
+Keys are lowercase language names. Values are CEFR: A1 A2 B1 B2 C1 C2.
 
-── ENGLISH ──────────────────────────────────────────
-• Posting text is written in English
-  → include "english": "C1"  (unless an explicit level is stated)
-• Explicit level stated ("English C1", "fluent English", "business English")
-  → use that level
-• "English is a plus" / "beneficial"
-  → "english": "B1"
+ENGLISH:
+• Posting written in English → "english": "C1" (unless explicit level stated)
+• "English is a plus / beneficial" → "english": "B1"
 
-── GERMAN ───────────────────────────────────────────
-HARD REQUIREMENT — use "C1" if no level stated, or the stated level:
-  Phrases: "Deutsch erforderlich", "German required", "German is a must",
-  "Fließende Deutschkenntnisse", "Deutschkenntnisse erforderlich",
-  "fluent German", "German: C1", "German B2", "Muttersprache Deutsch",
-  posting is entirely written in German (even if silent on the requirement).
-
-OPTIONAL / NICE-TO-HAVE — use "A2":
-  Phrases: "Deutsch von Vorteil", "Deutschkenntnisse von Vorteil",
-  "wünschenswert", "German is a plus", "nice to have", "beneficial",
-  "German would be an advantage", "basic German", "some German", "Grundkenntnisse".
-
-NOT MENTIONED AT ALL → omit "german" key entirely.
-
-── OTHER LANGUAGES ───────────────────────────────────
-Include only if explicitly required or listed as a plus.
+GERMAN — HARD REQUIREMENT (use "C1" if no level stated):
+  "Deutsch erforderlich", "German required", "fluent German", "German C1/B2",
+  posting is entirely in German.
+GERMAN — OPTIONAL ("A2"):
+  "Deutsch von Vorteil", "German is a plus", "nice to have", "Grundkenntnisse"
+NOT MENTIONED → omit "german" entirely.
 
 ════════════════════════════════════════════════════════
-FIELD 5 — is_berlin_compatible  (boolean)
+FIELD 6 — is_berlin_compatible  (boolean)
 ════════════════════════════════════════════════════════
-true if ANY of:
-  • Location is Berlin (or includes Berlin alongside other cities)
-  • Remote role open to all of Germany:
-    "bundesweit", "germany-wide", "deutschlandweit", "remote (germany)",
-    "remote from germany", "work from anywhere in germany",
-    "remote within germany", "remote in deutschland",
-    "remote or berlin", "berlin oder remote"
-false if:
-  • Location is another city only (Munich, Hamburg, …) with no remote option
-  • International remote without Germany specified
+TRUE only if a person living in BERLIN could do this job without relocating:
+  ✓ location_raw contains "Berlin"
+  ✓ location_raw is a Brandenburg city (Potsdam, Oranienburg, Falkensee, Teltow, …)
+  ✓ Full-Remote role with no country restriction OR restricted to Germany/Deutschland
+  ✓ Mentions "bundesweit", "deutschlandweit", "germany-wide", "remote from Germany"
+  ✓ Location not specified AND posting is in German (likely German market)
+
+FALSE — even if the company is based in Berlin:
+  ✗ location_raw is a specific non-Berlin city: Hamburg, Munich, Frankfurt,
+    Cologne, Stuttgart, Düsseldorf, Vienna, Zurich, etc.
+  ✗ location_raw is outside Germany: "Toronto, Canada", "New York, USA",
+    "London, UK", "Amsterdam, Netherlands", "Sydney, Australia"
+  ✗ Remote role explicitly restricted to another country:
+    "Remote (Canada only)", "US remote", "Remote - UK residents only"
+
+⚠️  COMMON MISTAKE: A company like HelloFresh, Delivery Hero, or Zalando may
+say "We are headquartered in Berlin" in their About section — this does NOT
+make a role Berlin-compatible if the role itself is located in Canada or the US.
+Base your answer ONLY on location_raw, not on the company description.
 
 ════════════════════════════════════════════════════════
-FIELD 6 — remote_type  (string)
+FIELD 7 — remote_type  (string)
 ════════════════════════════════════════════════════════
-"Full-Remote"  → 100% remote, no office required
-"Hybrid"       → mix of remote and office days (or ambiguous)
-"On-site"      → office only, no remote
-
+"Full-Remote"  → 100% remote, no office attendance required
+"Hybrid"       → mix of remote + office days (or ambiguous)
+"On-site"      → office only, no remote option
 Default to "Hybrid" when unclear.
 
 ════════════════════════════════════════════════════════
-OUTPUT — return ONLY this JSON shape, nothing else:
+OUTPUT — return ONLY this JSON shape:
 {
   "title": "...",
+  "location_raw": "...",
   "role_category": "...",
   "tech_stack": ["...", "..."],
   "languages": {"english": "C1", "german": "B2"},
@@ -191,10 +175,24 @@ OUTPUT — return ONLY this JSON shape, nothing else:
 # ---------------------------------------------------------------------------
 # Post-processing regexes
 # ---------------------------------------------------------------------------
-_BERLIN_RE = re.compile(
-    r"\b(berlin|bundesweit|germany.?wide|deutschlandweit|"
-    r"remote.*germany|remote.*deutschland|work from.*germany|"
-    r"anywhere in germany|remote in germany|remote \(germany\))\b",
+
+# Strong Germany-remote signals — safe to use as override
+_GERMANY_REMOTE_RE = re.compile(
+    r"\b(bundesweit|germany.?wide|deutschlandweit|"
+    r"remote\s+(?:from|in|within|across)\s+(?:germany|deutschland)|"
+    r"work\s+from\s+(?:anywhere\s+in\s+)?(?:germany|deutschland)|"
+    r"anywhere\s+in\s+germany|remote\s*\(?\s*germany\s*\)?|"
+    r"remote\s+or\s+berlin|berlin\s+or\s+remote|"
+    r"full.?remote.*germany|germany.*full.?remote)\b",
+    re.IGNORECASE,
+)
+
+# Non-Germany country signals — used to override false positives
+_NON_GERMANY_RE = re.compile(
+    r"\b(canada|united states|u\.s\.a?|united kingdom|u\.k\.|"
+    r"australia|new zealand|singapore|india|"
+    r"toronto|vancouver|new york|san francisco|london|amsterdam|"
+    r"paris|sydney|bangalore|dublin)\b",
     re.IGNORECASE,
 )
 
@@ -219,7 +217,7 @@ _GENDER_SUFFIX_RE = re.compile(
 
 def _is_english_dominant(text: str) -> bool:
     sample = text[:2000]
-    words = len(sample.split())
+    words  = len(sample.split())
     if words < 20:
         return False
     en = len(_ENGLISH_WORDS_RE.findall(sample))
@@ -229,7 +227,7 @@ def _is_english_dominant(text: str) -> bool:
 
 def _is_german_dominant(text: str) -> bool:
     sample = text[:2000]
-    words = len(sample.split())
+    words  = len(sample.split())
     if words < 20:
         return False
     de = len(_GERMAN_WORDS_RE.findall(sample))
@@ -238,12 +236,9 @@ def _is_german_dominant(text: str) -> bool:
 
 
 def _clean_title(title: str) -> str:
-    """Strip company-name suffixes and gender markers from a raw title."""
-    # "Title | Company" or "Title — Company" or "Title - Company (at Company)"
     for sep in [" | ", " — ", " – ", " at ", " @ "]:
         if sep in title:
             title = title.split(sep)[0].strip()
-    # Remove trailing gender suffix
     title = _GENDER_SUFFIX_RE.sub("", title).strip()
     return title or "Unknown"
 
@@ -266,29 +261,28 @@ def _get_client() -> OpenAI:
 def extract_job_data(markdown: str, model: str = "deepseek-chat") -> dict[str, Any]:
     """
     Send markdown to DeepSeek and return a structured job-data dict.
-    Falls back to safe defaults if the markdown is too short to be a real job posting.
+    Falls back to safe defaults if the markdown is too short.
     """
     if not markdown or not markdown.strip():
         logger.warning("extract_job_data: empty markdown — returning defaults.")
         return _default_result()
 
-    # If Crawl4AI returned almost nothing the page wasn't a real job posting
     if len(markdown.strip()) < 100:
         logger.warning(
-            "extract_job_data: markdown too short (%d chars) — likely a cookie wall "
-            "or redirect page. Returning defaults.", len(markdown.strip())
+            "extract_job_data: markdown too short (%d chars) — likely a cookie "
+            "wall or redirect. Returning defaults.", len(markdown.strip())
         )
         return _default_result()
 
-    truncated = markdown[:14_000]  # generous — DeepSeek context is large
-    client = _get_client()
+    truncated = markdown[:14_000]
+    client    = _get_client()
 
     for attempt in range(1, 4):
         try:
             response = client.chat.completions.create(
                 model=model,
                 temperature=0.0,
-                max_tokens=600,
+                max_tokens=700,
                 response_format={"type": "json_object"},
                 messages=[
                     {"role": "system", "content": _SYSTEM_PROMPT},
@@ -302,13 +296,13 @@ def extract_job_data(markdown: str, model: str = "deepseek-chat") -> dict[str, A
         except json.JSONDecodeError as exc:
             logger.warning("Attempt %d: JSON parse error: %s", attempt, exc)
             if attempt == 3:
-                logger.error("DeepSeek returned invalid JSON 3 times; returning defaults.")
+                logger.error("DeepSeek returned invalid JSON 3×; using defaults.")
                 return _default_result()
 
         except Exception as exc:
             logger.error("Attempt %d: API error: %s", attempt, exc)
             if attempt == 3:
-                logger.error("DeepSeek API failed 3 times; returning defaults.")
+                logger.error("DeepSeek API failed 3×; using defaults.")
                 return _default_result()
 
     return _default_result()
@@ -323,10 +317,14 @@ def _validate_and_coerce(data: dict, original_markdown: str) -> dict:
 
     # ── title ────────────────────────────────────────────────────────────────
     raw_title = str(data.get("title", "") or "").strip()
-    if not raw_title or raw_title.lower() == "unknown":
-        data["title"] = "Unknown"
-    else:
-        data["title"] = _clean_title(raw_title)
+    data["title"] = "Unknown" if not raw_title or raw_title.lower() == "unknown" \
+                    else _clean_title(raw_title)
+
+    # ── location_raw ─────────────────────────────────────────────────────────
+    location_raw = str(data.get("location_raw", "") or "").strip()
+    if not location_raw or location_raw.lower() in ("none", "null", "n/a"):
+        location_raw = "Not specified"
+    data["location_raw"] = location_raw
 
     # ── role_category ────────────────────────────────────────────────────────
     if data.get("role_category") not in ROLE_CATEGORIES:
@@ -347,21 +345,33 @@ def _validate_and_coerce(data: dict, original_markdown: str) -> dict:
         for k, v in langs.items()
         if isinstance(v, str) and v.upper().strip() in CEFR_LEVELS
     }
-
-    # Safety net: posting is English-dominant but model forgot english key
     if "english" not in langs and _is_english_dominant(original_markdown):
         langs["english"] = "C1"
-
-    # Safety net: posting is German-dominant but model forgot german key
     if "german" not in langs and _is_german_dominant(original_markdown):
         langs["german"] = "C1"
-
     data["languages"] = langs
 
     # ── is_berlin_compatible ─────────────────────────────────────────────────
+    # Primary signal: model judgment (it now has location_raw to reason from)
     model_flag = bool(data.get("is_berlin_compatible", False))
-    regex_flag = bool(_BERLIN_RE.search(original_markdown))
-    data["is_berlin_compatible"] = model_flag or regex_flag
+
+    # Override #1: strong Germany-remote signal in page text → force True
+    # (model sometimes misses these phrases buried in job descriptions)
+    germany_remote_signal = bool(_GERMANY_REMOTE_RE.search(original_markdown))
+
+    # Override #2: explicit non-Germany location in location_raw → force False
+    # This catches "Berlin HQ" in company bio but Canadian job location
+    location_in_non_germany = bool(_NON_GERMANY_RE.search(location_raw))
+
+    if location_in_non_germany:
+        # Hard reject: role is explicitly outside Germany
+        data["is_berlin_compatible"] = False
+    elif germany_remote_signal and not location_in_non_germany:
+        # Germany-remote confirmed in page text
+        data["is_berlin_compatible"] = True
+    else:
+        # Trust the model
+        data["is_berlin_compatible"] = model_flag
 
     # ── remote_type ──────────────────────────────────────────────────────────
     if data.get("remote_type") not in ("Full-Remote", "Hybrid", "On-site"):
@@ -373,6 +383,7 @@ def _validate_and_coerce(data: dict, original_markdown: str) -> dict:
 def _default_result() -> dict:
     return {
         "title":                "Unknown",
+        "location_raw":         "Not specified",
         "role_category":        "Other",
         "tech_stack":           [],
         "languages":            {},

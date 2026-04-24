@@ -120,7 +120,7 @@ def _extract_companies_with_ai(markdown: str, source_hint: str = "") -> list[dic
 
 async def _fetch_html(url: str, timeout: int = 15) -> str:
     """Fetch a URL with plain aiohttp and return the raw HTML text."""
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; BerlinJobHub/1.0; +https://berlinjobhub.de)"}
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; BerlinJobHunt/1.0; +https://berlinjobhunt.de)"}
     try:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout), allow_redirects=True) as resp:

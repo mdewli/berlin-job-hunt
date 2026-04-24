@@ -10,14 +10,14 @@
 {"name": "Trade Republic", "homepage": "https://traderepublic.com", "job_board_url": "https://traderepublic.com/careers", "ats_type": "ashby", "city": "Berlin", "size": "Mid-size"}
 {"name": "SumUp", "homepage": "https://sumup.com", "job_board_url": "https://sumup.com/careers/positions/", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
 {"name": "Babbel", "homepage": "https://babbel.com", "job_board_url": "https://jobs.babbel.com/en/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
-{"name": "Contentful", "homepage": "https://contentful.com", "job_board_url": "https://www.contentful.com/careers/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "Contentful", "homepage": "https://contentful.com", "job_board_url": "https://boards.greenhouse.io/contentful", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "Wolt", "homepage": "https://wolt.com", "job_board_url": "https://careers.wolt.com/en/jobs", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
 {"name": "Blinkist", "homepage": "https://blinkist.com", "job_board_url": "https://www.blinkist.com/jobs", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "idealo", "homepage": "https://idealo.de", "job_board_url": "https://www.idealo.de/jobs/", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
 {"name": "Personio", "homepage": "https://personio.com", "job_board_url": "https://www.personio.com/about-personio/careers/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "Klarna", "homepage": "https://klarna.com", "job_board_url": "https://www.klarna.com/careers/jobs/", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
 {"name": "Adjust", "homepage": "https://adjust.com", "job_board_url": "https://www.adjust.com/company/careers/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
-{"name": "ResearchGate", "homepage": "https://researchgate.net", "job_board_url": "https://www.researchgate.net/jobs", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
+{"name": "ResearchGate", "homepage": "https://researchgate.net", "job_board_url": "https://boards.greenhouse.io/researchgate", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "GetYourGuide", "homepage": "https://getyourguide.com", "job_board_url": "https://boards.greenhouse.io/getyourguide", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "Commercetools", "homepage": "https://commercetools.com", "job_board_url": "https://commercetools.com/careers/jobs", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
 {"name": "Raisin", "homepage": "https://raisin.com", "job_board_url": "https://boards.greenhouse.io/raisin", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
@@ -87,3 +87,58 @@
 {"name": "Dalia Research", "homepage": "https://dalia-research.com", "job_board_url": "https://boards.greenhouse.io/daliaresearch", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
 {"name": "Clark", "homepage": "https://clark.de", "job_board_url": "https://boards.greenhouse.io/clark", "ats_type": "greenhouse", "city": "Frankfurt", "size": "Startup"}
 {"name": "Friendsurance", "homepage": "https://friendsurance.com", "job_board_url": "https://www.friendsurance.com/about/jobs", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "BSBI Berlin", "homepage": "https://bsbi.de", "job_board_url": "https://bsbi.de/jobs", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "IU International University", "homepage": "https://iu.org", "job_board_url": "https://www.iu-group.de/karriere/offene-stellen/", "ats_type": "custom", "city": "Erfurt", "size": "Enterprise"}
+{"name": "SRH University Berlin", "homepage": "https://www.srh-berlin.de", "job_board_url": "https://career.srh-gruppe.de/", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
+{"name": "Hertie School", "homepage": "https://hertie-school.org", "job_board_url": "https://www.hertie-school.org/en/jobs", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "ESMT Berlin", "homepage": "https://esmt.berlin", "job_board_url": "https://www.esmt.berlin/about-esmt/careers", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "CODE University", "homepage": "https://code.berlin", "job_board_url": "https://code.berlin/en/about/jobs/", "ats_type": "custom", "city": "Berlin", "size": "Startup"}
+{"name": "HPI Hasso Plattner Institute", "homepage": "https://hpi.de", "job_board_url": "https://hpi.de/das-hpi/hpi-als-arbeitgeber/stellenangebote.html", "ats_type": "custom", "city": "Potsdam", "size": "Mid-size"}
+{"name": "University of Potsdam", "homepage": "https://uni-potsdam.de", "job_board_url": "https://www.uni-potsdam.de/de/stellenangebote", "ats_type": "custom", "city": "Potsdam", "size": "Enterprise"}
+{"name": "Film University Babelsberg", "homepage": "https://filmuniversitaet.de", "job_board_url": "https://www.filmuniversitaet.de/stellenangebote/", "ats_type": "custom", "city": "Potsdam", "size": "Startup"}
+{"name": "GFZ Potsdam", "homepage": "https://gfz-potsdam.de", "job_board_url": "https://www.gfz-potsdam.de/karriere/stellenangebote/", "ats_type": "custom", "city": "Potsdam", "size": "Mid-size"}
+{"name": "Fraunhofer HHI", "homepage": "https://hhi.fraunhofer.de", "job_board_url": "https://jobs.fraunhofer.de/jobs/?entity=1058", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
+{"name": "Fraunhofer FOKUS", "homepage": "https://fokus.fraunhofer.de", "job_board_url": "https://jobs.fraunhofer.de/jobs/?entity=1012", "ats_type": "custom", "city": "Berlin", "size": "Mid-size"}
+{"name": "Zalando SE", "homepage": "https://corporate.zalando.com", "job_board_url": "https://jobs.zalando.com/en/jobs/", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "1&1 IONOS", "homepage": "https://ionos.de", "job_board_url": "https://jobs.ionos.de/", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Sennder", "homepage": "https://sennder.com", "job_board_url": "https://jobs.lever.co/sennder", "ats_type": "lever", "city": "Berlin", "size": "Startup"}
+{"name": "Qdrant", "homepage": "https://qdrant.tech", "job_board_url": "https://jobs.ashbyhq.com/qdrant", "ats_type": "ashby", "city": "Berlin", "size": "Startup"}
+{"name": "Brevo", "homepage": "https://brevo.com", "job_board_url": "https://jobs.ashbyhq.com/brevo", "ats_type": "ashby", "city": "Berlin", "size": "Mid-size"}
+{"name": "HeyJobs", "homepage": "https://heyjobs.de", "job_board_url": "https://jobs.lever.co/heyjobs", "ats_type": "lever", "city": "Berlin", "size": "Startup"}
+{"name": "Humanitec", "homepage": "https://humanitec.com", "job_board_url": "https://jobs.lever.co/humanitec", "ats_type": "lever", "city": "Berlin", "size": "Startup"}
+{"name": "Moonfare", "homepage": "https://moonfare.com", "job_board_url": "https://boards.greenhouse.io/moonfare", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Exporo", "homepage": "https://exporo.de", "job_board_url": "https://boards.greenhouse.io/exporo", "ats_type": "greenhouse", "city": "Hamburg", "size": "Startup"}
+{"name": "ParkHere", "homepage": "https://park-here.eu", "job_board_url": "https://jobs.lever.co/parkhere", "ats_type": "lever", "city": "Munich", "size": "Startup"}
+{"name": "Payhawk", "homepage": "https://payhawk.com", "job_board_url": "https://boards.greenhouse.io/payhawk", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Comtravo", "homepage": "https://comtravo.com", "job_board_url": "https://boards.greenhouse.io/comtravo", "ats_type": "greenhouse", "city": "Berlin", "size": "Startup"}
+{"name": "Wunder Mobility", "homepage": "https://wundermobility.com", "job_board_url": "https://boards.greenhouse.io/wundermobility", "ats_type": "greenhouse", "city": "Hamburg", "size": "Startup"}
+{"name": "Google", "homepage": "https://careers.google.com", "job_board_url": "https://careers.google.com/jobs/results/?location=Berlin%2C+Germany", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Apple", "homepage": "https://jobs.apple.com", "job_board_url": "https://jobs.apple.com/en-us/search?location=berlin-DEU", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Amazon", "homepage": "https://amazon.jobs", "job_board_url": "https://www.amazon.jobs/en/search?base_query=&loc_query=Berlin%2C+Germany&country=DEU", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Microsoft", "homepage": "https://careers.microsoft.com", "job_board_url": "https://jobs.microsoft.com/en-us/search?lc=Berlin%2C+Germany", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Meta", "homepage": "https://metacareers.com", "job_board_url": "https://www.metacareers.com/jobs/?offices[0]=Berlin%2C+Germany", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Spotify", "homepage": "https://lifeatspotify.com", "job_board_url": "https://jobs.spotify.com/en/jobs?location=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Booking.com", "homepage": "https://booking.com", "job_board_url": "https://jobs.booking.com/careers?query=berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "SAP", "homepage": "https://sap.com", "job_board_url": "https://jobs.sap.com/search/?q=&locationsearch=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Siemens", "homepage": "https://siemens.com", "job_board_url": "https://jobs.siemens.com/siemens/search?location=Berlin%2C+Germany", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Deutsche Telekom", "homepage": "https://telekom.com", "job_board_url": "https://telekom.com/en/careers/job-search?term=&locationId=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Volkswagen Digital", "homepage": "https://jobs.vw.com", "job_board_url": "https://jobs.vw.com/search/?q=&locationsearch=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Bosch", "homepage": "https://bosch.com", "job_board_url": "https://www.bosch.com/careers/find-your-job/?industry=&country=de&city=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Bayer", "homepage": "https://bayer.com", "job_board_url": "https://career.bayer.com/en/jobs?jobLocations[0]=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Airbnb", "homepage": "https://airbnb.com", "job_board_url": "https://careers.airbnb.com/positions/?location=Berlin%2C+Germany", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Stripe", "homepage": "https://stripe.com", "job_board_url": "https://stripe.com/jobs/search?office_locations=Europe--Germany--Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Shopify", "homepage": "https://shopify.com", "job_board_url": "https://www.shopify.com/careers/search?keywords=&location=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Twilio", "homepage": "https://twilio.com", "job_board_url": "https://www.twilio.com/en-us/company/jobs#open-positions", "ats_type": "greenhouse", "city": "Berlin", "size": "Enterprise"}
+{"name": "Elastic", "homepage": "https://elastic.co", "job_board_url": "https://jobs.elastic.co/", "ats_type": "greenhouse", "city": "Berlin", "size": "Enterprise"}
+{"name": "MongoDB", "homepage": "https://mongodb.com", "job_board_url": "https://www.mongodb.com/careers/departments/engineering", "ats_type": "greenhouse", "city": "Berlin", "size": "Enterprise"}
+{"name": "Atlassian", "homepage": "https://atlassian.com", "job_board_url": "https://www.atlassian.com/company/careers/all-jobs?location=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Typeform", "homepage": "https://typeform.com", "job_board_url": "https://www.typeform.com/careers/", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "SoundCloud", "homepage": "https://soundcloud.com", "job_board_url": "https://boards.greenhouse.io/soundcloud", "ats_type": "greenhouse", "city": "Berlin", "size": "Mid-size"}
+{"name": "HelloSign / Dropbox Sign", "homepage": "https://dropbox.com", "job_board_url": "https://jobs.dropbox.com/all-jobs?location=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "GitHub", "homepage": "https://github.com", "job_board_url": "https://github.com/about/careers", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "GitLab", "homepage": "https://gitlab.com", "job_board_url": "https://about.gitlab.com/jobs/all-jobs/", "ats_type": "greenhouse", "city": "Remote", "size": "Enterprise"}
+{"name": "Cloudflare", "homepage": "https://cloudflare.com", "job_board_url": "https://www.cloudflare.com/careers/jobs/?location=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Datadog", "homepage": "https://datadoghq.com", "job_board_url": "https://careers.datadoghq.com/all-departments/?location=Berlin%2C+Germany", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "Palantir", "homepage": "https://palantir.com", "job_board_url": "https://jobs.lever.co/palantir?location=Berlin", "ats_type": "lever", "city": "Berlin", "size": "Enterprise"}
+{"name": "Unity Technologies", "homepage": "https://unity.com", "job_board_url": "https://careers.unity.com/jobs?location=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}
+{"name": "King", "homepage": "https://king.com", "job_board_url": "https://careers.king.com/jobs?location=Berlin", "ats_type": "custom", "city": "Berlin", "size": "Enterprise"}

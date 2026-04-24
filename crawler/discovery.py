@@ -34,8 +34,8 @@ SEEDS_PATH = Path(__file__).parent / "seeds.json"
 REQUEST_TIMEOUT = 10  # seconds
 REQUEST_HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (compatible; BerlinJobHubBot/1.0; "
-        "+https://berlinjobhub.dev)"
+        "Mozilla/5.0 (compatible; BerlinJobHuntBot/1.0; "
+        "+https://berlinjobhunt.dev)"
     )
 }
 

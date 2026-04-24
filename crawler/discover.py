@@ -51,19 +51,29 @@ _DEFAULT_WAIT = 3.0
 # DeepSeek prompt for job-board pages
 # ---------------------------------------------------------------------------
 _BOARD_SYSTEM_PROMPT = (
-    "You are a job board scraper assistant.\n"
-    "Given the Markdown of a company careers/jobs page, extract every individual "
-    "job posting you can find.\n\n"
+    "You are a job board scraper assistant for a Berlin-focused tech job board.\n"
+    "Given the Markdown of a company careers/jobs page, extract individual job postings "
+    "that are based in Germany (any city) OR are remote roles open to Germany.\n\n"
     "Return a JSON ARRAY (not an object). Each element must have exactly these keys:\n"
     "  title    — job title as written on the page\n"
     "  url      — the href/link for that role (may be relative, e.g. /jobs/123)\n"
     "  location — city or remote info shown next to the role; empty string if absent\n\n"
-    "Rules:\n"
-    "- Include ALL roles visible on the page, not just tech roles.\n"
+    "GEOGRAPHY RULES — only include a job if:\n"
+    "  • Location mentions: Berlin, Hamburg, Munich, Frankfurt, Cologne, Düsseldorf,\n"
+    "    Stuttgart, Leipzig, Potsdam, or any other German city\n"
+    "  • OR location says: Remote, Remote (Germany), Deutschlandweit, Bundesweit,\n"
+    "    Germany-wide, Work from anywhere in Germany, or similar\n"
+    "  • OR no location is shown at all (could be Germany-based — include it)\n"
+    "EXCLUDE jobs clearly located outside Germany (e.g. Philippines, Belgium, Spain,\n"
+    "  UK, France, Netherlands, USA) unless they explicitly say 'Remote from Germany'.\n\n"
+    "OTHER RULES:\n"
+    "- Include all role types (tech, operations, sales, etc.) as long as they pass the geography filter.\n"
     "- If the same title appears with different locations, include each separately.\n"
     "- If a link is not shown for a role, set url to empty string.\n"
     "- Return [] if the page shows no job listings (cookie wall, empty results, error).\n"
-    "- Return ONLY the raw JSON array. No prose, no markdown fences."
+    "- Return ONLY the raw JSON array. No prose, no markdown fences.\n"
+    "- IMPORTANT: Only return links that look like job posting URLs — not links to\n"
+    "  product pages, blog posts, docs, solutions pages, or navigation items."
 )
 
 
@@ -72,6 +82,94 @@ def _get_client() -> OpenAI:
     if not api_key:
         raise EnvironmentError("DEEPSEEK_API_KEY environment variable is not set.")
     return OpenAI(api_key=api_key, base_url="https://api.deepseek.com/v1")
+
+
+# ---------------------------------------------------------------------------
+# URL validation — keep only URLs that genuinely look like job postings
+# ---------------------------------------------------------------------------
+
+# Path segments that indicate a job posting
+_JOB_PATH_RE = re.compile(
+    r"/(job|jobs|career|careers|position|positions|opening|openings|"
+    r"vacancy|vacancies|role|roles|apply|hiring|stellenangebot|stellenangebote|"
+    r"jobangebote|arbeitsplatz|stellen)[s/\-_?#]|"
+    r"[/\-_?#](job|jobs)[/\-_?#]|"          # /job/ in the middle
+    r"[?&](id|jobId|job_id|gh_jid|jid)=\d|"  # query-param style IDs
+    r"/\d{4,}[/\-]",                           # numeric ID ≥ 4 digits in path
+    re.IGNORECASE,
+)
+
+# Path prefixes that are definitely NOT job postings — even if on the right domain
+_NON_JOB_PATH_RE = re.compile(
+    r"^/(product|products|solution|solutions|pricing|blog|about|"
+    r"enterprise|resources|marketplace|marketplace|partner|partners|"
+    r"docs|developers|developer|changelog|events|case.stud|help|"
+    r"legal|privacy|imprint|impressum|agb|terms|training|"
+    r"press|news|media|login|signup|sign-up|register|"
+    r"community|forum|academy|learn|learning)",
+    re.IGNORECASE,
+)
+
+
+def _is_job_url(url: str, board_url: str) -> bool:
+    """
+    Return True only if *url* plausibly points to a job posting.
+
+    Two-step check:
+    1. Domain must match (or be a subdomain of) the board's domain to avoid
+       following external nav links.
+    2. Path must look like a job URL (contains /job/, numeric ID, etc.) and
+       must NOT match known non-job paths.
+    """
+    if not url:
+        return False
+
+    try:
+        parsed      = urlparse(url)
+        board_parsed = urlparse(board_url)
+    except Exception:
+        return False
+
+    # ── Domain check ──────────────────────────────────────────────────────────
+    # Allow same domain OR well-known ATS domains even if different from board
+    ats_domains = {
+        "boards.greenhouse.io", "jobs.lever.co", "jobs.ashbyhq.com",
+        "apply.workable.com", "app.dover.io",
+        "careers.smartrecruiters.com", "jobs.smartrecruiters.com",
+    }
+    url_domain   = parsed.netloc.lstrip("www.")
+    board_domain = board_parsed.netloc.lstrip("www.")
+
+    domain_ok = (
+        url_domain == board_domain
+        or url_domain.endswith("." + board_domain)
+        or board_domain.endswith("." + url_domain)
+        or url_domain in ats_domains
+    )
+    if not domain_ok:
+        return False
+
+    # ── Non-job path blocklist ─────────────────────────────────────────────────
+    path = parsed.path
+    if _NON_JOB_PATH_RE.match(path):
+        return False
+
+    # ── Job path allowlist ────────────────────────────────────────────────────
+    full_url_str = url.lower()
+    if _JOB_PATH_RE.search(full_url_str):
+        return True
+
+    # If the board domain is a known ATS host, trust all its paths
+    if url_domain in ats_domains:
+        return True
+
+    # Final fallback: if we're on the same domain and the path is "deep" (≥3
+    # segments) it's probably a real posting page, not the homepage or nav
+    segments = [s for s in path.split("/") if s]
+    if url_domain == board_domain and len(segments) >= 3:
+        return True
+
+    return False
 
 
 def _resolve_url(href: str, board_url: str) -> str:
@@ -124,6 +222,7 @@ def _extract_jobs_from_markdown(markdown: str, board_url: str) -> list[dict]:
                 logger.warning("Unexpected response shape from DeepSeek: %r", type(parsed))
                 return []
 
+            raw_count = 0
             results = []
             for item in parsed:
                 if not isinstance(item, dict):
@@ -131,13 +230,20 @@ def _extract_jobs_from_markdown(markdown: str, board_url: str) -> list[dict]:
                 url = _resolve_url(str(item.get("url", "")), board_url)
                 if not url:
                     continue
+                raw_count += 1
+                if not _is_job_url(url, board_url):
+                    logger.debug("Filtered non-job URL: %s", url)
+                    continue
                 results.append({
                     "title":    str(item.get("title", "Unknown")).strip(),
                     "url":      url,
                     "location": str(item.get("location", "")).strip(),
                 })
 
-            logger.info("DeepSeek found %d job links on board page.", len(results))
+            logger.info(
+                "DeepSeek found %d URLs, %d passed job-URL filter.",
+                raw_count, len(results),
+            )
             return results
 
         except json.JSONDecodeError as exc:

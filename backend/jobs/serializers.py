@@ -9,6 +9,22 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "homepage_url", "company_size", "hq_city"]
 
 
+class CompanyListSerializer(serializers.ModelSerializer):
+    """Used by the public companies list — includes live job count."""
+    job_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model  = Company
+        fields = [
+            "id",
+            "name",
+            "homepage_url",
+            "company_size",
+            "hq_city",
+            "job_count",
+        ]
+
+
 class JobPostingSerializer(serializers.ModelSerializer):
     company = CompanySerializer(read_only=True)
 

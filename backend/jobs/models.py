@@ -21,6 +21,9 @@ class Company(models.Model):
     name            = models.TextField()
     company_size    = models.TextField(null=True, blank=True)
     hq_city         = models.TextField(null=True, blank=True)
+    job_board_url   = models.TextField(null=True, blank=True)
+    ats_type        = models.TextField(null=True, blank=True)
+    is_active       = models.BooleanField(default=True)
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
 

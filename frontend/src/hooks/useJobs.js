@@ -3,23 +3,12 @@ import { supabase } from '../lib/supabase'
 
 const PAGE_SIZE = 20
 
-/**
- * Fetches the paginated job list directly from Supabase PostgREST.
- *
- * @param {object} params
- * @param {string}  params.query       - Full-text search string
- * @param {object}  params.filters     - { berlin, english_only, remote_type, company_size }
- * @param {number}  params.page        - Current page number
- *
- * @returns {{ jobs, count, totalPages, loading, error }}
- */
 export function useJobs({ query, filters, page }) {
   const [jobs,       setJobs]       = useState([])
   const [count,      setCount]      = useState(0)
   const [loading,    setLoading]    = useState(true)
   const [error,      setError]      = useState(null)
 
-  // Debounce the search query to avoid a request on every keystroke
   const [debouncedQ, setDebouncedQ] = useState(query)
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(query), 350)
@@ -35,7 +24,6 @@ export function useJobs({ query, filters, page }) {
     const from = (page - 1) * PAGE_SIZE
     const to   = from + PAGE_SIZE - 1
 
-    // Always inner-join companies — every posting must have one
     let q = supabase
       .from('job_postings')
       .select(
@@ -48,7 +36,6 @@ export function useJobs({ query, filters, page }) {
       .order('posted_at', { ascending: false })
       .range(from, to)
 
-    // Full-text search via search_vector tsvector column
     if (debouncedQ) {
       q = q.textSearch('search_vector', debouncedQ, {
         config: 'english',
@@ -56,12 +43,10 @@ export function useJobs({ query, filters, page }) {
       })
     }
 
-    // Berlin / remote-compatible
     if (filters.berlin) {
       q = q.eq('is_in_berlin', true)
     }
 
-    // English-only: no German requirement, or German <= A2
     if (filters.english_only) {
       q = q.or(
         'languages->>german.is.null,' +
@@ -70,14 +55,17 @@ export function useJobs({ query, filters, page }) {
       )
     }
 
-    // Remote type
     if (filters.remote_type) {
       q = q.eq('remote_type', filters.remote_type)
     }
 
-    // Company size (filter on joined companies table)
     if (filters.company_size) {
       q = q.eq('companies.company_size', filters.company_size)
+    }
+
+    // Specific company filter (from Companies page "view jobs" click)
+    if (filters.company_id) {
+      q = q.eq('company_id', filters.company_id)
     }
 
     q.then(({ data, error: err, count: total }) => {

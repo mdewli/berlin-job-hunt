@@ -1,173 +1,262 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
-// ── Badge helpers ──────────────────────────────────────────────────────────────
-
-const REMOTE_STYLES = {
-  'Full-Remote': 'bg-emerald-100 text-emerald-700',
-  'Hybrid':      'bg-amber-100 text-amber-700',
-  'On-site':     'bg-slate-100 text-slate-600',
+// ── Badge colour maps ─────────────────────────────────────────────────────────
+const REMOTE_BADGE = {
+  'Full-Remote': { bg: 'rgba(16,185,129,0.10)', text: '#34d399', border: 'rgba(52,211,153,0.22)' },
+  'Hybrid':      { bg: 'rgba(245,158,11,0.10)', text: '#fbbf24', border: 'rgba(251,191,36,0.22)' },
+  'On-site':     { bg: 'rgba(255,255,255,0.05)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.10)' },
 }
-
-const SIZE_STYLES = {
-  'Enterprise': 'bg-violet-100 text-violet-700',
-  'Mid-size':   'bg-blue-100 text-blue-700',
-  'Startup':    'bg-cyan-100 text-cyan-700',
-  'Micro':      'bg-teal-100 text-teal-700',
+const SIZE_BADGE = {
+  'Enterprise': { bg: 'rgba(139,92,246,0.10)', text: '#a78bfa', border: 'rgba(167,139,250,0.22)' },
+  'Mid-size':   { bg: 'rgba(59,130,246,0.10)', text: '#60a5fa', border: 'rgba(96,165,250,0.22)' },
+  'Startup':    { bg: 'rgba(6,182,212,0.10)',  text: '#22d3ee', border: 'rgba(34,211,238,0.22)' },
+  'Micro':      { bg: 'rgba(20,184,166,0.10)', text: '#2dd4bf', border: 'rgba(45,212,191,0.22)' },
 }
-
-const CEFR_STYLES = {
-  C2: 'bg-rose-100 text-rose-700',
-  C1: 'bg-orange-100 text-orange-700',
-  B2: 'bg-yellow-100 text-yellow-700',
-  B1: 'bg-lime-100 text-lime-700',
-  A2: 'bg-green-100 text-green-700',
-  A1: 'bg-emerald-100 text-emerald-700',
+const CEFR_BADGE = {
+  C2: { bg: 'rgba(244,63,94,0.10)',  text: '#fb7185', border: 'rgba(251,113,133,0.22)' },
+  C1: { bg: 'rgba(249,115,22,0.10)', text: '#fb923c', border: 'rgba(251,146,60,0.22)' },
+  B2: { bg: 'rgba(234,179,8,0.10)',  text: '#facc15', border: 'rgba(250,204,21,0.22)' },
+  B1: { bg: 'rgba(132,204,22,0.10)', text: '#a3e635', border: 'rgba(163,230,53,0.22)' },
+  A2: { bg: 'rgba(34,197,94,0.10)',  text: '#4ade80', border: 'rgba(74,222,128,0.22)' },
+  A1: { bg: 'rgba(16,185,129,0.10)', text: '#34d399', border: 'rgba(52,211,153,0.22)' },
 }
-
+const FALLBACK_BADGE = { bg: 'rgba(255,255,255,0.05)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.10)' }
 const LANG_NAMES = { german: 'DE', english: 'EN', french: 'FR', spanish: 'ES' }
 
-function Badge({ children, className }) {
+const ACCENT_BORDER = {
+  'Full-Remote': '#34d399',
+  'Hybrid':      '#fbbf24',
+  'On-site':     'rgba(255,255,255,0.08)',
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function Badge({ style = FALLBACK_BADGE, icon, children, title }) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${className}`}>
+    <span
+      title={title}
+      className="badge"
+      style={{ backgroundColor: style.bg, color: style.text, borderColor: style.border }}
+    >
+      {icon && <span aria-hidden>{icon}</span>}
       {children}
     </span>
   )
 }
 
-// ── Main card ─────────────────────────────────────────────────────────────────
+function CompanyLogo({ name, homepageUrl }) {
+  const [failed, setFailed] = useState(false)
+  const domain = homepageUrl?.replace(/^https?:\/\//, '').split('/')[0].replace(/^www\./, '')
+  const initials = name?.split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase()).join('') ?? '?'
 
-/**
- * @param {{ job, isSaved, onSaveToggle }} props
- *
- * onSaveToggle(jobId) — async; returns null if unauthenticated (parent opens modal),
- * true/false for new saved state, or throws on API error.
- */
-export default function JobCard({ job, isSaved, onSaveToggle }) {
-  const [saving, setSaving] = useState(false)
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      await onSaveToggle(job.id)
-    } catch (err) {
-      console.error('Save failed:', err)
-    } finally {
-      setSaving(false)
-    }
+  if (failed || !domain) {
+    return (
+      <div
+        className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-semibold font-display shrink-0 select-none"
+        style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.18)', color: '#D4AF37' }}
+      >
+        {initials}
+      </div>
+    )
   }
 
-  const company = job.company ?? {}
-  const borderColor = job.remote_type === 'Full-Remote'
-    ? 'border-l-emerald-400'
-    : job.remote_type === 'Hybrid'
-    ? 'border-l-amber-400'
-    : 'border-l-slate-300'
+  return (
+    <div
+      className="w-9 h-9 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
+      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+    >
+      <img
+        src={`https://logo.clearbit.com/${domain}`}
+        alt={name}
+        onError={() => setFailed(true)}
+        className="w-7 h-7 object-contain"
+      />
+    </div>
+  )
+}
+
+// ── Card animation variant (used by parent grid for stagger) ──────────────────
+export const cardVariant = {
+  hidden: { opacity: 0, y: 18 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+}
+
+// ── Main card ─────────────────────────────────────────────────────────────────
+
+export default function JobCard({ job, isSaved, onSaveToggle, onQuickView }) {
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async e => {
+    e.stopPropagation()
+    setSaving(true)
+    try { await onSaveToggle(job.id) }
+    catch (err) { console.error('Save failed:', err) }
+    finally { setSaving(false) }
+  }
+
+  const company      = job.company ?? {}
+  const accentColor  = ACCENT_BORDER[job.remote_type] ?? 'rgba(255,255,255,0.06)'
+  const postedDate   = job.posted_at
+    ? new Date(job.posted_at).toLocaleDateString('en-DE', { day: 'numeric', month: 'short' })
+    : ''
 
   return (
-    <article
-      className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 border-l-4 ${borderColor} p-5 flex flex-col gap-3`}
+    <motion.article
+      className="card p-5 flex flex-col gap-3 relative overflow-hidden cursor-default"
+      variants={cardVariant}
+      whileHover={{ y: -5, boxShadow: '0px 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,175,55,0.18)' }}
+      transition={{ duration: 0.2 }}
+      layout
     >
-      {/* Top row: company size + remote badge */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {company.company_size && (
-          <Badge className={SIZE_STYLES[company.company_size] ?? 'bg-slate-100 text-slate-600'}>
-            {company.company_size}
-          </Badge>
-        )}
-        {job.remote_type && (
-          <Badge className={REMOTE_STYLES[job.remote_type] ?? 'bg-slate-100 text-slate-600'}>
-            {job.remote_type === 'Full-Remote' ? '🌍 ' : job.remote_type === 'Hybrid' ? '🏢 ' : '📍 '}
-            {job.remote_type}
-          </Badge>
-        )}
-        {job.is_in_berlin && (
-          <Badge className="bg-slate-800 text-white">Berlin</Badge>
-        )}
-        {company.hq_city && company.hq_city !== 'Berlin' && (
-          <Badge className="bg-slate-100 text-slate-500">{company.hq_city}</Badge>
-        )}
+      {/* Left accent stripe */}
+      <div
+        className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full"
+        style={{ backgroundColor: accentColor }}
+      />
+
+      {/* Top row: logo + company + badges */}
+      <div className="flex items-start gap-2.5 pl-4">
+        <CompanyLogo name={company.name} homepageUrl={company.homepage_url} />
+
+        <div className="flex-1 min-w-0">
+          {/* Company name */}
+          <p
+            className="text-xs font-medium truncate"
+            style={{ color: '#D4AF37' }}
+            title={company.name}
+          >
+            {company.name ?? 'Unknown company'}
+            {company.hq_city && (
+              <span style={{ color: 'var(--text-3)' }}> · {company.hq_city}</span>
+            )}
+          </p>
+
+          {/* Badges row */}
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {company.company_size && (
+              <Badge style={SIZE_BADGE[company.company_size]}>{company.company_size}</Badge>
+            )}
+            {job.remote_type && (
+              <Badge style={REMOTE_BADGE[job.remote_type]}>
+                {job.remote_type === 'Full-Remote' ? '🌍' : job.remote_type === 'Hybrid' ? '🏢' : '📍'}
+                {' '}{job.remote_type}
+              </Badge>
+            )}
+            {job.is_in_berlin && (
+              <Badge style={{ bg: 'rgba(212,175,55,0.10)', text: '#D4AF37', border: 'rgba(212,175,55,0.22)' }}>
+                Berlin
+              </Badge>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Company + title */}
-      <div>
-        <p className="text-sm font-medium text-indigo-600 mb-0.5">
-          {company.name ?? 'Unknown company'}
-        </p>
-        <h2 className="text-base font-semibold text-slate-900 leading-snug">
-          {job.title}
+      {/* Job title — clicking opens Quick View */}
+      <div className="pl-4">
+        <h2
+          className="font-display font-semibold text-[0.9375rem] leading-snug cursor-pointer group"
+          style={{ color: 'var(--text-1)' }}
+          onClick={() => onQuickView?.(job)}
+          title="Quick view"
+        >
+          <span className="hover:text-[#D4AF37] transition-colors duration-150">{job.title}</span>
         </h2>
         {job.role_category && (
-          <p className="text-xs text-slate-500 mt-0.5">{job.role_category}</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+            {job.role_category}
+          </p>
         )}
       </div>
 
       {/* Tech stack */}
       {job.tech_stack?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {job.tech_stack.slice(0, 8).map(tech => (
-            <Badge key={tech} className="bg-indigo-50 text-indigo-700">
-              {tech}
-            </Badge>
+        <div className="flex flex-wrap gap-1 pl-4">
+          {job.tech_stack.slice(0, 6).map(tech => (
+            <Badge key={tech}>{tech}</Badge>
           ))}
-          {job.tech_stack.length > 8 && (
-            <Badge className="bg-slate-100 text-slate-500">
-              +{job.tech_stack.length - 8}
-            </Badge>
+          {job.tech_stack.length > 6 && (
+            <Badge>+{job.tech_stack.length - 6}</Badge>
           )}
         </div>
       )}
 
-      {/* Language requirements */}
-      {Object.keys(job.languages ?? {}).length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          <span className="text-xs text-slate-500 self-center">Languages:</span>
-          {Object.entries(job.languages).map(([lang, level]) => (
-            <Badge
-              key={lang}
-              className={CEFR_STYLES[level] ?? 'bg-slate-100 text-slate-600'}
-              title={`${lang}: ${level}`}
-            >
-              {LANG_NAMES[lang] ?? lang.toUpperCase()}: {level}
-            </Badge>
-          ))}
-        </div>
-      )}
+      {/* Language + date meta — icons instead of labels */}
+      <div className="flex items-center gap-3 pl-4 flex-wrap">
+        {Object.entries(job.languages ?? {}).map(([lang, level]) => (
+          <span
+            key={lang}
+            className="badge"
+            title={`${lang}: ${level}`}
+            style={{
+              ...(CEFR_BADGE[level] ?? FALLBACK_BADGE),
+              backgroundColor: (CEFR_BADGE[level] ?? FALLBACK_BADGE).bg,
+              borderColor:     (CEFR_BADGE[level] ?? FALLBACK_BADGE).border,
+              color:           (CEFR_BADGE[level] ?? FALLBACK_BADGE).text,
+            }}
+          >
+            {/* Globe for any language */}
+            <span aria-hidden>🌐</span>
+            {LANG_NAMES[lang] ?? lang.toUpperCase()} {level}
+          </span>
+        ))}
 
-      {/* Footer: date + actions */}
-      <div className="flex items-center justify-between pt-1 mt-auto">
-        <span className="text-xs text-slate-400">
-          {new Date(job.posted_at).toLocaleDateString('en-DE', {
-            day: 'numeric', month: 'short', year: 'numeric',
-          })}
-        </span>
+        {postedDate && (
+          <span className="flex items-center gap-0.5 text-xs" style={{ color: 'var(--text-3)' }}>
+            <span aria-hidden>🕐</span> {postedDate}
+          </span>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="divider mx-0" />
+
+      {/* Footer actions */}
+      <div className="flex items-center justify-between pl-4">
+        {/* Quick-view hint */}
+        <button
+          onClick={() => onQuickView?.(job)}
+          className="text-xs transition-colors"
+          style={{ color: 'var(--text-3)' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#D4AF37'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-3)'}
+        >
+          Quick view ↗
+        </button>
 
         <div className="flex items-center gap-2">
           {/* Save heart */}
-          <button
+          <motion.button
             onClick={handleSave}
             disabled={saving}
-            title={isSaved ? 'Unsave job' : 'Save job'}
-            className={[
-              'p-2 rounded-lg border transition-colors text-lg',
-              isSaved
-                ? 'border-rose-300 bg-rose-50 text-rose-500'
-                : 'border-slate-200 bg-white text-slate-400 hover:border-rose-300 hover:text-rose-400',
-            ].join(' ')}
+            title={isSaved ? 'Unsave' : 'Save'}
+            whileTap={{ scale: 0.88 }}
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all"
+            style={{
+              background:   isSaved ? 'rgba(244,63,94,0.12)' : 'rgba(255,255,255,0.05)',
+              border:       isSaved ? '1px solid rgba(244,63,94,0.28)' : '1px solid var(--border)',
+              color:        isSaved ? '#fb7185' : 'var(--text-3)',
+            }}
           >
-            {saving ? '...' : isSaved ? '♥' : '♡'}
-          </button>
+            {saving ? '…' : isSaved ? '♥' : '♡'}
+          </motion.button>
 
-          {/* Apply button */}
+          {/* Ghost Apply button — fills on hover */}
           <a
             href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors"
+            className="btn-ghost"
+            onClick={e => e.stopPropagation()}
           >
             Apply →
           </a>
         </div>
       </div>
-    </article>
+    </motion.article>
   )
 }

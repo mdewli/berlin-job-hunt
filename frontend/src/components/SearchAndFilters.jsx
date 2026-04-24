@@ -1,86 +1,137 @@
 const REMOTE_OPTIONS = ['', 'Full-Remote', 'Hybrid', 'On-site']
 const SIZE_OPTIONS   = ['', 'Micro', 'Startup', 'Mid-size', 'Enterprise']
 
-function Toggle({ label, active, onClick }) {
+function Chip({ label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={[
-        'px-3 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap',
-        active
-          ? 'bg-indigo-600 border-indigo-600 text-white'
-          : 'bg-white border-slate-300 text-slate-600 hover:border-indigo-400 hover:text-indigo-600',
-      ].join(' ')}
+      className="px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wide whitespace-nowrap transition-all"
+      style={active ? {
+        background: 'rgba(212,175,55,0.14)',
+        border: '1px solid rgba(212,175,55,0.35)',
+        color: '#D4AF37',
+      } : {
+        background: 'rgba(255,255,255,0.05)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        color: 'rgba(255,255,255,0.55)',
+      }}
     >
       {label}
     </button>
   )
 }
 
-function Select({ value, onChange, options, placeholder }) {
+function GlassSelect({ value, onChange, options, placeholder }) {
   return (
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="text-sm border border-slate-300 rounded-full px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer"
+      className="text-xs rounded-full px-3.5 py-1.5 cursor-pointer appearance-none outline-none transition-all"
+      style={{
+        background: value ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.05)',
+        border: value ? '1px solid rgba(212,175,55,0.30)' : '1px solid rgba(255,255,255,0.08)',
+        color: value ? '#D4AF37' : 'rgba(255,255,255,0.55)',
+      }}
     >
-      <option value="">{placeholder}</option>
+      <option value="" style={{ background: '#151921', color: '#fff' }}>{placeholder}</option>
       {options.filter(Boolean).map(o => (
-        <option key={o} value={o}>{o}</option>
+        <option key={o} value={o} style={{ background: '#151921', color: '#fff' }}>{o}</option>
       ))}
     </select>
   )
 }
 
-export default function SearchAndFilters({ query, setQuery, filters, setFilters, count, loading }) {
+export default function SearchAndFilters({
+  query, setQuery,
+  filters, setFilters,
+  count, loading,
+  companyFilterName,
+  onClearCompany,
+}) {
   const toggle = key => setFilters(f => ({ ...f, [key]: !f[key] }))
   const set    = key => val => setFilters(f => ({ ...f, [key]: val }))
 
   return (
-    <div className="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 py-3 space-y-3">
+    <div className="glass-panel sticky top-16 z-30">
+      <div className="max-w-6xl mx-auto px-4 py-3 space-y-2.5">
 
-        {/* Search input */}
+        {/* Active company filter banner */}
+        {companyFilterName && (
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium"
+            style={{
+              background: 'rgba(212,175,55,0.10)',
+              border: '1px solid rgba(212,175,55,0.28)',
+            }}
+          >
+            <span style={{ color: 'rgba(255,255,255,0.45)' }}>Showing jobs at</span>
+            <span style={{ color: '#D4AF37' }}>{companyFilterName}</span>
+            <button
+              onClick={onClearCompany}
+              className="ml-auto flex items-center gap-1 rounded-full px-2 py-0.5 transition-all"
+              style={{
+                color: 'rgba(255,255,255,0.45)',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.09)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.color = '#fb7185'
+                e.currentTarget.style.borderColor = 'rgba(251,113,133,0.4)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color = 'rgba(255,255,255,0.45)'
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)'
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
+        {/* Search */}
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
+          <span
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm"
+            style={{ color: 'rgba(255,255,255,0.28)' }}
+          >
             🔍
           </span>
           <input
             type="search"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search jobs, companies, or tech stack..."
-            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+            placeholder="Search jobs, companies, technologies…"
+            className="input pl-10"
           />
         </div>
 
-        {/* Filter row */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-          <Toggle
-            label="🏙️ Berlin / Remote DE"
+        {/* Filter chips */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
+          <Chip
+            label="🏙 Berlin / Remote DE"
             active={filters.berlin}
             onClick={() => toggle('berlin')}
           />
-          <Toggle
+          <Chip
             label="🇬🇧 No German required"
             active={filters.english_only}
             onClick={() => toggle('english_only')}
           />
-          <Toggle
-            label="🌍 Full-Remote only"
+          <Chip
+            label="🌍 Full-Remote"
             active={filters.remote_type === 'Full-Remote'}
             onClick={() => set('remote_type')(filters.remote_type === 'Full-Remote' ? '' : 'Full-Remote')}
           />
 
-          <div className="h-5 w-px bg-slate-200 mx-1 flex-shrink-0" />
+          <div className="h-4 w-px shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
 
-          <Select
+          <GlassSelect
             value={filters.company_size}
             onChange={set('company_size')}
             options={SIZE_OPTIONS}
             placeholder="Company size"
           />
-          <Select
+          <GlassSelect
             value={filters.remote_type}
             onChange={set('remote_type')}
             options={REMOTE_OPTIONS}
@@ -88,11 +139,11 @@ export default function SearchAndFilters({ query, setQuery, filters, setFilters,
           />
         </div>
 
-        {/* Result count */}
-        <p className="text-xs text-slate-500 pb-0.5">
+        {/* Count */}
+        <p className="text-xs pb-0.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
           {loading
-            ? 'Loading...'
-            : `${count.toLocaleString()} job${count === 1 ? '' : 's'} found`}
+            ? 'Searching\u2026'
+            : `${count.toLocaleString()} ${count === 1 ? 'position' : 'positions'} found`}
         </p>
       </div>
     </div>
