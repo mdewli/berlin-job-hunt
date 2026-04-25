@@ -50,17 +50,22 @@ const BERLIN_OUTLINE =
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, sub, delay = 0 }) {
+function StatCard({ label, value, sub, delay = 0, onClick }) {
+  const Tag = onClick ? 'button' : 'div'
   return (
     <motion.div
       className="glass-panel rounded-2xl p-5 text-center"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      onClick={onClick}
+      whileHover={onClick ? { scale: 1.02, borderColor: 'rgba(0,255,135,0.25)' } : {}}
     >
       <p className="text-3xl font-bold font-display" style={{ color: CYAN }}>{value}</p>
       <p className="text-sm font-medium mt-1" style={{ color: 'var(--text-2)' }}>{label}</p>
       {sub && <p className="text-xs mt-0.5" style={{ color: 'var(--text-4)' }}>{sub}</p>}
+      {onClick && <p className="text-[10px] mt-1.5" style={{ color: CYAN_DIM, opacity: 0.7 }}>click to browse →</p>}
     </motion.div>
   )
 }
@@ -249,7 +254,7 @@ function Skeleton() {
 }
 
 // ── Main InsightsPage ─────────────────────────────────────────────────────────
-export default function InsightsPage({ onNavigateJobs }) {
+export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
   const { topSkills, roleCategories, remoteBreakdown, totalJobs, totalCompanies, loading, error } = useStats()
   const totalRemote = remoteBreakdown.reduce((s, r) => s + r.count, 0)
 
@@ -294,8 +299,8 @@ export default function InsightsPage({ onNavigateJobs }) {
 
       {/* ── Stat cards ── */}
       <div className="grid grid-cols-3 gap-4">
-        <StatCard label="Active Positions"  value={totalJobs.toLocaleString()}                    sub="updated daily"  delay={0.05} />
-        <StatCard label="Companies Tracked" value={totalCompanies.toLocaleString()}               sub="& growing"      delay={0.10} />
+        <StatCard label="Active Positions"  value={totalJobs.toLocaleString()}                    sub="updated daily"  delay={0.05} onClick={() => onNavigateJobs?.({ label: 'All' })} />
+        <StatCard label="Companies Tracked" value={totalCompanies.toLocaleString()}               sub="& growing"      delay={0.10} onClick={onNavigateCompanies} />
         <StatCard label="Unique Skills"     value={topSkills.length > 0 ? `${topSkills.length}+` : '—'} sub="in job postings" delay={0.15} />
       </div>
 
@@ -306,7 +311,7 @@ export default function InsightsPage({ onNavigateJobs }) {
         <p className="text-xs mb-4" style={{ color: 'var(--text-4)' }}>Click a card to browse those jobs</p>
         <div className="flex gap-3">
           {remoteBreakdown.map(r => (
-            <RemotePill key={r.type} {...r} total={totalRemote} onClick={() => onNavigateJobs?.({ remote_type: r.type })} />
+            <RemotePill key={r.type} {...r} total={totalRemote} onClick={() => onNavigateJobs?.({ remote_type: r.type, label: r.type })} />
           ))}
         </div>
       </Panel>
@@ -325,7 +330,7 @@ export default function InsightsPage({ onNavigateJobs }) {
               <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="skill" width={88} tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
-              <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={18} style={{ cursor: 'pointer' }} onClick={data => onNavigateJobs?.({ query: data.skill })}>
+              <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={18} style={{ cursor: 'pointer' }} onClick={data => onNavigateJobs?.({ query: data.skill, label: data.skill })}>
                 {chartSkills.map((entry, i) => (
                   <Cell key={entry.skill} fill={barColor(i, chartSkills.length)} />
                 ))}
@@ -374,7 +379,7 @@ export default function InsightsPage({ onNavigateJobs }) {
                 {roleCategories.slice(0, 8).map((r, i) => (
                   <button
                     key={r.name}
-                    onClick={() => onNavigateJobs?.({ query: r.name })}
+                    onClick={() => onNavigateJobs?.({ query: r.name, label: r.name })}
                     className="flex items-center justify-between text-xs w-full rounded-lg px-2 py-1.5 transition-colors text-left"
                     style={{ color: 'var(--text-3)' }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}

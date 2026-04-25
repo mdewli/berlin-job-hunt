@@ -9,110 +9,141 @@ import SavedJobsPanel   from './components/SavedJobsPanel.jsx'
 import SearchAndFilters from './components/SearchAndFilters.jsx'
 import CompaniesPage    from './pages/CompaniesPage.jsx'
 import InsightsPage     from './pages/InsightsPage.jsx'
+import LandingPage      from './pages/LandingPage.jsx'
 import { useAuth }      from './hooks/useAuth.js'
 import { useJobs }      from './hooks/useJobs.js'
+import { useStats }     from './hooks/useStats.js'
 
 const INITIAL_FILTERS = {
   berlin:       false,
   english_only: false,
   remote_type:  '',
   company_size: '',
-  company_id:   '',   // set when drilling from Companies → Jobs
+  company_id:   '',
 }
 
-// Staggered grid container
 const gridVariants = {
   hidden: {},
-  show: {
-    transition: { staggerChildren: 0.07, delayChildren: 0.05 },
-  },
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 }
 
 export default function App() {
-  // ── Auth + saved-jobs ───────────────────────────────────────────────────
+  // ── Auth ──────────────────────────────────────────────────────────────────
   const {
-    user,
-    savedIds,
-    savedJobs,
-    signInWithEmail,
-    signUpWithEmail,
-    signInWithGoogle,
-    signOut,
-    toggleSaved,
+    user, savedIds, savedJobs,
+    signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, toggleSaved,
   } = useAuth()
 
   const [showAuth,  setShowAuth]  = useState(false)
   const [showSaved, setShowSaved] = useState(false)
 
-  // ── View state ───────────────────────────────────────────────────────────
-  const [view,         setView]         = useState('jobs')
+  // ── View ──────────────────────────────────────────────────────────────────
+  const [view,         setView]         = useState('home')
   const [previousView, setPreviousView] = useState(null)
 
-  // Navigate to a view, optionally clearing search state
-  const navigateTo = (newView, { clearSearch = false } = {}) => {
+  // ── Search & filters ──────────────────────────────────────────────────────
+  const [query,   setQuery]   = useState('')
+  const [filters, setFilters] = useState(INITIAL_FILTERS)
+  const [page,    setPage]    = useState(1)
+
+  // ── Filter context: tracks how we arrived at the jobs view ────────────────
+  // When set, the SearchAndFilters bar is hidden and a back button is shown
+  const [filterContext, setFilterContext] = useState(null)
+  // { label: string, backView: 'home'|'companies'|'insights' }
+
+  // ── Quick view ────────────────────────────────────────────────────────────
+  const [quickViewJob, setQuickViewJob] = useState(null)
+
+  // ── Stats (for landing page numbers) ─────────────────────────────────────
+  const { totalJobs, totalCompanies } = useStats()
+
+  const handleSetQuery   = v => { setQuery(v);   setPage(1) }
+  const handleSetFilters = v => { setFilters(v); setPage(1) }
+
+  // ── Navigation helpers ────────────────────────────────────────────────────
+  const goToView = (newView, opts = {}) => {
+    const { clearSearch = false } = opts
     setPreviousView(view)
     setView(newView)
     if (clearSearch) {
       setQuery('')
       setFilters(INITIAL_FILTERS)
-      setCompanyFilterName('')
+      setFilterContext(null)
       setPage(1)
     }
   }
 
-  // Handle logo / "home" click — always clears search
+  // Header view change — logo click always goes home and clears everything
   const handleViewChange = newView => {
     if (newView === 'home') {
-      navigateTo('jobs', { clearSearch: true })
+      setQuery('')
+      setFilters(INITIAL_FILTERS)
+      setFilterContext(null)
+      setPage(1)
+      setPreviousView(view)
+      setView('home')
     } else {
-      navigateTo(newView)
+      goToView(newView)
     }
   }
 
-  // Back button — return to previous view
+  // Back button — return to where we came from
   const handleBack = () => {
-    if (previousView) {
-      setView(previousView)
-      setPreviousView(null)
-    }
+    const dest = filterContext?.backView ?? previousView ?? 'home'
+    setFilterContext(null)
+    setQuery('')
+    setFilters(INITIAL_FILTERS)
+    setPage(1)
+    setView(dest)
   }
 
-  // ── Quick View ───────────────────────────────────────────────────────────
-  const [quickViewJob, setQuickViewJob] = useState(null)
-
-  // ── Search & filter state ────────────────────────────────────────────────
-  const [query,             setQuery]             = useState('')
-  const [filters,           setFilters]           = useState(INITIAL_FILTERS)
-  const [page,              setPage]              = useState(1)
-  const [companyFilterName, setCompanyFilterName] = useState('')
-
-  const handleSetQuery   = v => { setQuery(v);   setPage(1) }
-  const handleSetFilters = v => { setFilters(v); setPage(1) }
-
-  // ── "View jobs at [Company]" — called from CompaniesPage ─────────────────
-  const handleCompanyJobsClick = company => {
-    setPreviousView('companies')
-    setFilters(f => ({ ...f, company_id: company.id }))
-    setCompanyFilterName(company.name)
-    setQuery('')
+  // ── Landing page actions ──────────────────────────────────────────────────
+  const handleLandingSearch = q => {
+    setQuery(q)
+    setFilters(INITIAL_FILTERS)
+    setFilterContext(null)
     setPage(1)
+    setPreviousView('home')
     setView('jobs')
   }
 
-  // ── Clear company filter ──────────────────────────────────────────────────
-  const handleClearCompany = () => {
-    setFilters(f => ({ ...f, company_id: '' }))
-    setCompanyFilterName('')
+  const handleLandingFilter = ({ query: q, filters: f }) => {
+    if (q !== undefined) setQuery(q)
+    setFilters({ ...INITIAL_FILTERS, ...f })
+    setFilterContext(null)
     setPage(1)
+    setPreviousView('home')
+    setView('jobs')
   }
 
-  // ── Navigate from Insights → Jobs with a pre-set filter ──────────────────
-  const handleInsightsFilter = ({ query: q, remote_type, berlin } = {}) => {
-    if (q            !== undefined) setQuery(q)
-    if (remote_type  !== undefined) setFilters(f => ({ ...INITIAL_FILTERS, remote_type }))
-    if (berlin       !== undefined) setFilters(f => ({ ...INITIAL_FILTERS, berlin }))
-    setCompanyFilterName('')
+  const handleBrowseAll = () => {
+    setQuery('')
+    setFilters(INITIAL_FILTERS)
+    setFilterContext(null)
     setPage(1)
+    setPreviousView('home')
+    setView('jobs')
+  }
+
+  // ── Company drill-through ─────────────────────────────────────────────────
+  const handleCompanyJobsClick = company => {
+    setFilters({ ...INITIAL_FILTERS, company_id: company.id })
+    setQuery('')
+    setPage(1)
+    setFilterContext({ label: `Jobs at ${company.name}`, backView: 'companies' })
+    setPreviousView('companies')
+    setView('jobs')
+  }
+
+  // ── Insights drill-through ────────────────────────────────────────────────
+  const handleInsightsFilter = ({ query: q, remote_type, berlin, label } = {}) => {
+    if (q           !== undefined) setQuery(q)
+    if (remote_type !== undefined) setFilters({ ...INITIAL_FILTERS, remote_type })
+    else if (berlin !== undefined) setFilters({ ...INITIAL_FILTERS, berlin })
+    else                           setFilters(INITIAL_FILTERS)
+    setPage(1)
+    setFilterContext({ label: label ?? q ?? remote_type ?? 'Filtered jobs', backView: 'insights' })
+    setPreviousView('insights')
     setView('jobs')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -120,10 +151,59 @@ export default function App() {
   // ── Jobs data ─────────────────────────────────────────────────────────────
   const { jobs, count, totalPages, loading, error } = useJobs({ query, filters, page })
 
-  // ── Save toggle ──────────────────────────────────────────────────────────
   const handleSaveToggle = async jobId => {
     const result = await toggleSaved(jobId)
     if (result === null) setShowAuth(true)
+  }
+
+  // ── Context-aware job view header ─────────────────────────────────────────
+  const JobsContextHeader = () => {
+    if (!filterContext) return null
+    const icons = { companies: '🏢', insights: '📊', home: '🏠' }
+    const backLabels = { companies: 'Companies', insights: 'Insights', home: 'Home' }
+    const back = filterContext.backView ?? 'home'
+    return (
+      <div className="max-w-6xl mx-auto px-4 pt-8 pb-2">
+        <button
+          onClick={handleBack}
+          className="inline-flex items-center gap-2 text-xs px-3.5 py-2 rounded-full mb-5 transition-all"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.10)',
+            color: 'rgba(255,255,255,0.5)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = 'rgba(0,255,135,0.35)'
+            e.currentTarget.style.color = '#00FF87'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.10)'
+            e.currentTarget.style.color = 'rgba(255,255,255,0.5)'
+          }}
+        >
+          <span>{icons[back] ?? '←'}</span>
+          <span>← Back to {backLabels[back] ?? back}</span>
+        </button>
+        <p className="text-xs font-bold tracking-widest uppercase mb-1.5" style={{ color: '#00CC6A', letterSpacing: '0.1em' }}>
+          {filterContext.backView === 'companies' ? 'Company Jobs' : 'Filtered Results'}
+        </p>
+        <h1
+          className="font-bold mb-6"
+          style={{ fontSize: 'clamp(1.6rem, 4vw, 2.5rem)', color: 'var(--text-1)', letterSpacing: '-0.02em' }}
+        >
+          {filterContext.label.startsWith('Jobs at ') ? (
+            <>
+              Open roles at{' '}
+              <span style={{ color: '#00FF87' }}>{filterContext.label.replace('Jobs at ', '')}</span>
+            </>
+          ) : (
+            <>
+              <span style={{ color: '#00FF87' }}>{filterContext.label}</span>{' '}jobs
+            </>
+          )}
+        </h1>
+      </div>
+    )
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -140,228 +220,166 @@ export default function App() {
         onSavedClick={() => setShowSaved(true)}
       />
 
-      {/* ── Companies view ─────────────────────────────────────────────── */}
       <AnimatePresence mode="wait">
+
+        {/* ── Home / Landing ─────────────────────────────────────────── */}
+        {view === 'home' && (
+          <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            <LandingPage
+              totalJobs={totalJobs}
+              totalCompanies={totalCompanies}
+              onSearch={handleLandingSearch}
+              onFilterClick={handleLandingFilter}
+              onBrowseAll={handleBrowseAll}
+              onNavigateCompanies={() => goToView('companies')}
+            />
+          </motion.div>
+        )}
+
+        {/* ── Companies ──────────────────────────────────────────────── */}
         {view === 'companies' && (
-          <motion.div
-            key="companies"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
-          >
+          <motion.div key="companies" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
             <CompaniesPage
               onLoginClick={() => setShowAuth(true)}
               onCompanyJobsClick={handleCompanyJobsClick}
             />
           </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* ── Insights view ──────────────────────────────────────────────── */}
-      <AnimatePresence mode="wait">
+        {/* ── Insights ───────────────────────────────────────────────── */}
         {view === 'insights' && (
-          <motion.div
-            key="insights"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
-          >
-            <InsightsPage onNavigateJobs={handleInsightsFilter} />
+          <motion.div key="insights" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+            <InsightsPage
+              onNavigateJobs={handleInsightsFilter}
+              onNavigateCompanies={() => goToView('companies')}
+            />
           </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* ── Jobs view ──────────────────────────────────────────────────── */}
-      <AnimatePresence mode="wait">
+        {/* ── Jobs ───────────────────────────────────────────────────── */}
         {view === 'jobs' && (
-          <motion.div
-            key="jobs"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
-          >
-            <SearchAndFilters
-              query={query}
-              setQuery={handleSetQuery}
-              filters={filters}
-              setFilters={handleSetFilters}
-              count={count}
-              loading={loading}
-              companyFilterName={companyFilterName}
-              onClearCompany={handleClearCompany}
-            />
+          <motion.div key="jobs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
 
-            <main className="max-w-6xl mx-auto px-4 py-8">
-
-              {/* Page hero caption */}
-              <div className="mb-8">
-                {companyFilterName ? (
-                  <>
-                    <button
-                      onClick={() => { handleClearCompany(); navigateTo('companies') }}
-                      className="text-xs mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all"
-                      style={{
-                        color: 'rgba(255,255,255,0.5)',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.color='var(--text-1)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.18)' }}
-                      onMouseLeave={e => { e.currentTarget.style.color='rgba(255,255,255,0.5)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.08)' }}
-                    >
-                      ← Back to Companies
-                    </button>
-                    <p className="text-xs font-medium tracking-widest uppercase mb-2" style={{ color: '#00FF87' }}>
-                      Company jobs
-                    </p>
-                    <h1 className="font-display font-semibold text-3xl sm:text-4xl" style={{ color: 'var(--text-1)' }}>
-                      Open roles at
-                      <em className="not-italic" style={{ color: '#00FF87' }}> {companyFilterName}</em>
-                    </h1>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-xs font-medium tracking-widest uppercase mb-2" style={{ color: '#00FF87' }}>
-                      Job Feed
-                    </p>
-                    <h1 className="font-display font-semibold text-3xl sm:text-4xl" style={{ color: 'var(--text-1)' }}>
-                      Tech careers
-                      <em className="not-italic" style={{ color: '#00FF87' }}> in Berlin</em>
-                    </h1>
-                    <p className="text-sm mt-2" style={{ color: 'var(--text-3)' }}>
-                      English-friendly roles — updated daily from 1 000+ companies
-                    </p>
-                  </>
-                )}
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div
-                  className="rounded-xl px-5 py-4 mb-6 text-sm"
-                  style={{ background: 'rgba(244,63,94,0.10)', border: '1px solid rgba(244,63,94,0.22)', color: '#fb7185' }}
-                >
-                  <strong>Could not load jobs:</strong> {error}
-                </div>
-              )}
-
-              {/* Loading skeleton */}
-              {loading && (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl p-5 space-y-3.5 animate-pulse"
-                      style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-lg" style={{ background: 'rgba(255,255,255,0.07)' }} />
-                        <div className="flex-1 space-y-1.5">
-                          <div className="h-2.5 rounded w-1/2" style={{ background: 'rgba(255,255,255,0.07)' }} />
-                          <div className="flex gap-1.5">
-                            {[1,2].map(j => <div key={j} className="h-4 rounded-full w-14" style={{ background: 'rgba(255,255,255,0.05)' }} />)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="h-4 rounded w-3/4" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                      <div className="flex gap-1.5">
-                        {[1,2,3].map(j => <div key={j} className="h-4 rounded-full w-12" style={{ background: 'rgba(255,255,255,0.05)' }} />)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Empty state */}
-              {!loading && !error && jobs.length === 0 && (
-                <div className="text-center py-24">
-                  <div className="text-5xl mb-5">🔭</div>
-                  <h3 className="font-display font-semibold text-xl mb-2" style={{ color: 'var(--text-2)' }}>
-                    No jobs found
-                  </h3>
-                  <p className="text-sm" style={{ color: 'var(--text-3)' }}>
-                    {companyFilterName
-                      ? `No active listings at ${companyFilterName} right now.`
-                      : 'Try adjusting your filters or search query.'}
+            {/* Show filters bar OR context header — never both */}
+            {filterContext ? (
+              <JobsContextHeader />
+            ) : (
+              <>
+                <SearchAndFilters
+                  query={query}
+                  setQuery={handleSetQuery}
+                  filters={filters}
+                  setFilters={handleSetFilters}
+                  count={count}
+                  loading={loading}
+                  companyFilterName={null}
+                  onClearCompany={null}
+                />
+                {/* Normal jobs hero */}
+                <div className="max-w-6xl mx-auto px-4 pt-8 pb-2">
+                  <p className="text-xs font-bold tracking-widest uppercase mb-1.5" style={{ color: '#00CC6A', letterSpacing: '0.1em' }}>
+                    Job Feed
                   </p>
-                  {companyFilterName && (
-                    <button onClick={handleClearCompany} className="btn-dim mt-5 px-4 py-2">
-                      ← Back to all jobs
-                    </button>
-                  )}
+                  <h1
+                    className="font-bold mb-1"
+                    style={{ fontSize: 'clamp(1.6rem, 4vw, 2.5rem)', color: 'var(--text-1)', letterSpacing: '-0.02em' }}
+                  >
+                    Tech careers <span style={{ color: '#00FF87' }}>in Berlin</span>
+                  </h1>
+                  <p className="text-sm mb-6" style={{ color: 'var(--text-3)' }}>
+                    English-friendly roles — updated daily from 1 000+ companies
+                  </p>
+                </div>
+              </>
+            )}
+
+            <main className="max-w-6xl mx-auto px-4 pb-16">
+              {/* Count line when in context mode */}
+              {filterContext && (
+                <p className="text-xs mb-5 pb-1" style={{ color: 'var(--text-3)' }}>
+                  {loading ? 'Loading…' : `${count.toLocaleString()} ${count === 1 ? 'position' : 'positions'} found`}
+                </p>
+              )}
+
+              {error && (
+                <div className="text-center py-16">
+                  <p className="text-sm" style={{ color: '#fb7185' }}>
+                    Could not load jobs: {error}
+                  </p>
                 </div>
               )}
 
-              {/* Staggered job grid */}
-              {!loading && jobs.length > 0 && (
-                <>
-                  <motion.div
-                    className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                    variants={gridVariants}
-                    initial="hidden"
-                    animate="show"
-                    key={`${query}-${JSON.stringify(filters)}-${page}`}
-                  >
-                    {jobs.map(job => (
-                      <JobCard
-                        key={job.id}
-                        job={job}
-                        isSaved={savedIds.has(job.id)}
-                        onSaveToggle={handleSaveToggle}
-                        onQuickView={setQuickViewJob}
-                      />
-                    ))}
-                  </motion.div>
+              {!error && !loading && jobs.length === 0 && (
+                <div className="text-center py-20">
+                  <p className="text-4xl mb-4">🔍</p>
+                  <p className="text-sm" style={{ color: 'var(--text-3)' }}>No jobs found. Try adjusting your filters.</p>
+                </div>
+              )}
 
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-3 mt-10">
-                      <button
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                        className="btn-dim px-4 py-2 disabled:opacity-30"
-                      >
-                        ← Prev
-                      </button>
-                      <span className="text-sm" style={{ color: 'var(--text-3)' }}>
-                        Page {page} of {totalPages}
-                      </span>
-                      <button
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                        className="btn-dim px-4 py-2 disabled:opacity-30"
-                      >
-                        Next →
-                      </button>
-                    </div>
-                  )}
-                </>
+              <motion.div
+                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                variants={gridVariants}
+                initial="hidden"
+                animate="show"
+              >
+                {jobs.map(job => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    isSaved={savedIds.has(job.id)}
+                    onSaveToggle={handleSaveToggle}
+                    onQuickView={setQuickViewJob}
+                  />
+                ))}
+              </motion.div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-3 mt-10">
+                  <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                    className="btn-dim px-4 py-2 text-xs disabled:opacity-30"
+                  >
+                    ← Prev
+                  </button>
+                  <span className="text-xs" style={{ color: 'var(--text-3)' }}>
+                    {page} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                    className="btn-dim px-4 py-2 text-xs disabled:opacity-30"
+                  >
+                    Next →
+                  </button>
+                </div>
               )}
             </main>
           </motion.div>
         )}
+
       </AnimatePresence>
 
-      {/* ── Quick View drawer ────────────────────────────────────────── */}
-      <JobQuickView
-        job={quickViewJob}
-        onClose={() => setQuickViewJob(null)}
-        isSaved={quickViewJob ? savedIds.has(quickViewJob.id) : false}
-        onSaveToggle={handleSaveToggle}
-      />
+      {/* ── Overlays ─────────────────────────────────────────────────── */}
+      {quickViewJob && (
+        <JobQuickView
+          job={quickViewJob}
+          isSaved={savedIds.has(quickViewJob.id)}
+          onSaveToggle={handleSaveToggle}
+          onClose={() => setQuickViewJob(null)}
+          onLoginClick={() => setShowAuth(true)}
+        />
+      )}
 
-      {/* ── Saved jobs drawer ────────────────────────────────────────── */}
-      <SavedJobsPanel
-        open={showSaved}
-        onClose={() => setShowSaved(false)}
-        savedJobs={savedJobs}
-        savedIds={savedIds}
-        onSaveToggle={handleSaveToggle}
-      />
+      {showSaved && (
+        <SavedJobsPanel
+          savedJobs={savedJobs}
+          onClose={() => setShowSaved(false)}
+          onQuickView={job => { setShowSaved(false); setQuickViewJob(job) }}
+        />
+      )}
 
-      {/* ── Auth modal ───────────────────────────────────────────────── */}
       {showAuth && (
         <AuthModal
           onClose={() => setShowAuth(false)}
