@@ -332,8 +332,8 @@ function CompanyCard({ company, onJobsClick }) {
         href={homepage_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs transition-colors truncate block hover:underline"
-        style={{ color: 'rgba(255,255,255,0.3)' }}
+        className="text-xs transition-colors truncate block hover:underline overflow-hidden"
+        style={{ color: 'rgba(255,255,255,0.3)', maxWidth: '100%', wordBreak: 'break-all' }}
         onMouseEnter={e => e.currentTarget.style.color = '#00FF87'}
         onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
       >

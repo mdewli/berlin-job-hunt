@@ -5,8 +5,9 @@ import AuthModal        from './components/AuthModal.jsx'
 import Header           from './components/Header.jsx'
 import JobCard, { cardVariant } from './components/JobCard.jsx'
 import JobQuickView     from './components/JobQuickView.jsx'
-import SavedJobsPanel   from './components/SavedJobsPanel.jsx'
+import ProfilePanel     from './components/ProfilePanel.jsx'
 import SearchAndFilters from './components/SearchAndFilters.jsx'
+// SavedJobsPanel replaced by ProfilePanel (has "Saved" tab built in)
 import CompaniesPage    from './pages/CompaniesPage.jsx'
 import InsightsPage     from './pages/InsightsPage.jsx'
 import LandingPage      from './pages/LandingPage.jsx'
@@ -34,8 +35,8 @@ export default function App() {
     signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, toggleSaved,
   } = useAuth()
 
-  const [showAuth,  setShowAuth]  = useState(false)
-  const [showSaved, setShowSaved] = useState(false)
+  const [showAuth,    setShowAuth]    = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
   // ── View ──────────────────────────────────────────────────────────────────
   const [view,         setView]         = useState('home')
@@ -160,6 +161,17 @@ export default function App() {
     if (result === null) setShowAuth(true)
   }
 
+  // ── Skill-based job search from profile ──────────────────────────────────
+  const handleFindBySkills = skills => {
+    setQuery(skills.join(' '))
+    setFilters(INITIAL_FILTERS)
+    setFilterContext({ label: 'Jobs matching your skills', backView: 'home' })
+    setPage(1)
+    setPreviousView('home')
+    setView('jobs')
+    scrollTop()
+  }
+
   // ── Context-aware job view header ─────────────────────────────────────────
   const JobsContextHeader = () => {
     if (!filterContext) return null
@@ -233,7 +245,7 @@ export default function App() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen font-sans relative">
+    <div className="min-h-screen font-sans relative" style={{ overflowX: 'hidden', maxWidth: '100vw' }}>
 
       {/* ── Global background: photo + dark overlay, fixed so it never scrolls ── */}
       <div
@@ -266,7 +278,8 @@ export default function App() {
         onViewChange={handleViewChange}
         onLoginClick={() => setShowAuth(true)}
         onLogout={signOut}
-        onSavedClick={() => setShowSaved(true)}
+        onSavedClick={() => setShowProfile(true)}
+        onProfileClick={() => setShowProfile(true)}
       />
 
       <AnimatePresence mode="sync">
@@ -421,13 +434,17 @@ export default function App() {
         />
       )}
 
-      {showSaved && (
-        <SavedJobsPanel
-          savedJobs={savedJobs}
-          onClose={() => setShowSaved(false)}
-          onQuickView={job => { setShowSaved(false); setQuickViewJob(job) }}
-        />
-      )}
+      <ProfilePanel
+        open={showProfile}
+        onClose={() => setShowProfile(false)}
+        user={user}
+        savedJobs={savedJobs}
+        savedIds={savedIds}
+        onSaveToggle={handleSaveToggle}
+        onQuickView={job => { setShowProfile(false); setQuickViewJob(job) }}
+        onFindBySkills={handleFindBySkills}
+        onLogout={signOut}
+      />
 
       {showAuth && (
         <AuthModal
