@@ -28,7 +28,7 @@ function GlassSelect({ value, onChange, options }) {
       style={{
         background: value ? 'rgba(0,255,135,0.15)' : 'rgba(255,255,255,0.06)',
         border: value ? '1px solid rgba(0,255,135,0.35)' : '1px solid rgba(255,255,255,0.10)',
-        color: value ? '#d4a853' : 'rgba(255,255,255,0.6)',
+        color: value ? '#00FF87' : 'rgba(255,255,255,0.6)',
       }}
     >
       {options.map(opt => (
@@ -76,12 +76,12 @@ export default function CompaniesPage({ onLoginClick, onCompanyJobsClick }) {
       {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs font-medium tracking-widest uppercase mb-2" style={{ color: '#d4a853' }}>
+          <p className="text-xs font-medium tracking-widest uppercase mb-2" style={{ color: '#00FF87' }}>
             Company Directory
           </p>
           <h1 className="font-display font-semibold text-3xl sm:text-4xl" style={{ color: 'rgba(255,255,255,0.95)' }}>
             Who's hiring
-            <span className="italic font-normal" style={{ color: '#d4a853' }}> in Berlin</span>
+            <span className="italic font-normal" style={{ color: '#00FF87' }}> in Berlin</span>
           </h1>
           <p className="text-sm mt-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
             {count > 0
@@ -138,7 +138,7 @@ export default function CompaniesPage({ onLoginClick, onCompanyJobsClick }) {
           style={hasJobs ? {
             background: 'rgba(0,255,135,0.18)',
             border: '1px solid rgba(0,255,135,0.4)',
-            color: '#d4a853',
+            color: '#00FF87',
           } : {
             background: 'rgba(255,255,255,0.06)',
             border: '1px solid rgba(255,255,255,0.10)',
@@ -261,7 +261,7 @@ function CompanyCard({ company, onJobsClick }) {
     : { bg: 'rgba(255,255,255,0.05)', text: 'rgba(255,255,255,0.3)', border: 'rgba(255,255,255,0.08)' }
 
   return (
-    <article className="glass-card rounded-2xl p-5 flex flex-col gap-3.5 group">
+    <article className="card p-5 flex flex-col gap-3.5 group">
 
       {/* Avatar + name */}
       <div className="flex items-start gap-3">
@@ -271,7 +271,7 @@ function CompanyCard({ company, onJobsClick }) {
           style={{
             background: 'linear-gradient(135deg, rgba(0,255,135,0.2), rgba(109,40,160,0.15))',
             border: '1px solid rgba(0,255,135,0.2)',
-            color: '#d4a853',
+            color: '#00FF87',
           }}
         >
           {initials || '?'}
@@ -334,7 +334,7 @@ function CompanyCard({ company, onJobsClick }) {
         rel="noopener noreferrer"
         className="text-xs transition-colors truncate block hover:underline"
         style={{ color: 'rgba(255,255,255,0.3)' }}
-        onMouseEnter={e => e.currentTarget.style.color = '#d4a853'}
+        onMouseEnter={e => e.currentTarget.style.color = '#00FF87'}
         onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
       >
         {homepage_url.replace(/^https?:\/\//, '')} ↗

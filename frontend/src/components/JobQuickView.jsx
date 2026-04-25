@@ -22,7 +22,7 @@ function CompanyLogo({ name, homepageUrl, size = 12 }) {
     return (
       <div
         className={`w-${size} h-${size} rounded-xl flex items-center justify-center font-display font-semibold shrink-0`}
-        style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.18)', color: '#D4AF37', fontSize: size * 1.4 + 'px' }}
+        style={{ background: 'rgba(0,255,135,0.12)', border: '1px solid rgba(0,255,135,0.18)', color: '#00FF87', fontSize: size * 1.4 + 'px' }}
       >
         {initials}
       </div>
@@ -106,9 +106,11 @@ export default function JobQuickView({ job, onClose, isSaved, onSaveToggle }) {
             transition={{ type: 'spring', damping: 28, stiffness: 260 }}
             className="fixed top-0 right-0 h-full z-50 flex flex-col w-full sm:w-[480px]"
             style={{
-              background: '#151921',
-              borderLeft: '1px solid rgba(255,255,255,0.07)',
-              boxShadow: '-20px 0 60px rgba(0,0,0,0.6)',
+              background: 'rgba(10,14,20,0.55)',
+              backdropFilter: 'blur(28px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+              borderLeft: '1px solid rgba(255,255,255,0.10)',
+              boxShadow: '-20px 0 60px rgba(0,0,0,0.5)',
             }}
           >
             {/* ── Top bar ─────────────────────────────────────────────── */}
@@ -116,7 +118,7 @@ export default function JobQuickView({ job, onClose, isSaved, onSaveToggle }) {
               className="flex items-center justify-between px-6 py-4 shrink-0"
               style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
             >
-              <span className="text-xs font-medium tracking-widest uppercase" style={{ color: '#D4AF37' }}>
+              <span className="text-xs font-medium tracking-widest uppercase" style={{ color: '#00FF87' }}>
                 Quick View
               </span>
               <button
@@ -138,7 +140,7 @@ export default function JobQuickView({ job, onClose, isSaved, onSaveToggle }) {
               <div className="flex items-start gap-4">
                 <CompanyLogo name={company.name} homepageUrl={company.homepage_url} size={12} />
                 <div>
-                  <p className="text-xs font-medium" style={{ color: '#D4AF37' }}>
+                  <p className="text-xs font-medium" style={{ color: '#00FF87' }}>
                     {company.name}
                     {company.hq_city && <span style={{ color: 'var(--text-3)' }}> · {company.hq_city}</span>}
                   </p>
@@ -227,7 +229,7 @@ export default function JobQuickView({ job, onClose, isSaved, onSaveToggle }) {
             {/* ── Sticky footer ────────────────────────────────────────── */}
             <div
               className="shrink-0 px-6 py-4 flex items-center gap-3"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: '#151921' }}
+              style={{ borderTop: '1px solid rgba(255,255,255,0.08)', background: 'rgba(10,14,20,0.40)' }}
             >
               {/* Save */}
               <motion.button
