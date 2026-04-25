@@ -248,7 +248,7 @@ export default function App() {
           position: 'fixed',
           inset: 0,
           zIndex: 1,
-          background: 'rgba(7,11,16,0.42)',
+          background: 'rgba(7,11,16,0.18)',
         }}
       />
 
