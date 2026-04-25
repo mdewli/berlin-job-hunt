@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie,
@@ -149,7 +149,7 @@ function BerlinMap({ onNavigateJobs }) {
 
   const handleClick = name => {
     setSelected(s => s === name ? null : name)
-    onNavigateJobs?.({ berlin: true })
+    onNavigateJobs?.({ query: name, berlin: true, label: `Jobs in ${name}` })
   }
 
   const sel = DISTRICTS.find(d => d.name === selected)
@@ -237,6 +237,139 @@ function RemotePill({ type, count, total, onClick }) {
   )
 }
 
+// ── Skills Explorer Modal ─────────────────────────────────────────────────────
+function SkillsModal({ skills, onClose, onNavigateJobs }) {
+  // Close on Escape key
+  useEffect(() => {
+    const handler = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const maxCount = skills[0]?.count || 1
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4"
+        style={{ background: 'rgba(0,0,0,0.78)' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      >
+        <motion.div
+          className="w-full max-w-2xl rounded-t-2xl sm:rounded-2xl flex flex-col"
+          style={{
+            background: '#0D1420',
+            border: '1px solid rgba(255,255,255,0.09)',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+            maxHeight: '82vh',
+          }}
+          initial={{ y: 60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 60, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center justify-between px-6 py-4 shrink-0"
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+          >
+            <div>
+              <p className="text-xs font-bold tracking-widest uppercase mb-0.5" style={{ color: CYAN_DIM, letterSpacing: '0.10em' }}>
+                Skills Explorer
+              </p>
+              <h2 className="font-bold text-lg" style={{ color: 'var(--text-1)' }}>
+                {skills.length} Technologies —{' '}
+                <span style={{ color: CYAN }}>click any to browse jobs</span>
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-lg transition-all"
+              style={{ color: 'var(--text-3)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#fb7185'; e.currentTarget.style.borderColor = 'rgba(251,113,133,0.4)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)' }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Scrollable skill list */}
+          <div className="overflow-y-auto scrollbar-accent px-4 py-3 space-y-1.5">
+            {skills.map((s, i) => {
+              const pct = Math.round((s.count / maxCount) * 100)
+              // Colour ramp: green → teal-blue (same as bar chart)
+              const t  = i / Math.max(skills.length - 1, 1)
+              const gr = Math.round(255 + (180 - 255) * t)
+              const gb = Math.round(135 + (216 - 135) * t)
+              const color = `rgb(0,${gr},${gb})`
+
+              return (
+                <button
+                  key={s.skill}
+                  onClick={() => { onNavigateJobs?.({ query: s.skill, label: `${s.skill} Jobs` }); onClose() }}
+                  className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 group transition-all text-left"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = 'rgba(0,255,135,0.30)'
+                    e.currentTarget.style.background  = 'rgba(0,255,135,0.05)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+                    e.currentTarget.style.background  = 'rgba(255,255,255,0.03)'
+                  }}
+                >
+                  {/* Rank */}
+                  <span className="w-5 text-right text-xs shrink-0" style={{ color: 'var(--text-4)' }}>
+                    {i + 1}
+                  </span>
+
+                  {/* Skill name */}
+                  <span className="w-28 text-sm font-semibold truncate shrink-0 transition-colors" style={{ color: 'var(--text-2)' }}>
+                    {s.skill}
+                  </span>
+
+                  {/* Progress bar */}
+                  <div className="flex-1 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${CYAN})` }}
+                    />
+                  </div>
+
+                  {/* Count */}
+                  <span className="w-10 text-right text-xs shrink-0" style={{ color: 'var(--text-3)' }}>
+                    {s.count}
+                  </span>
+
+                  {/* Arrow — appears on hover */}
+                  <span
+                    className="text-xs shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ color: CYAN }}
+                  >
+                    →
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Footer hint */}
+          <div
+            className="px-6 py-3 text-xs text-center shrink-0"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)', color: 'var(--text-4)' }}
+          >
+            Press <kbd className="px-1.5 py-0.5 rounded text-xs" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.10)' }}>Esc</kbd> to close
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
@@ -257,6 +390,7 @@ function Skeleton() {
 export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
   const { topSkills, roleCategories, remoteBreakdown, totalJobs, totalCompanies, loading, error } = useStats()
   const totalRemote = remoteBreakdown.reduce((s, r) => s + r.count, 0)
+  const [showSkills, setShowSkills] = useState(false)
 
   if (loading) {
     return (
@@ -284,6 +418,7 @@ export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
   const chartSkills = topSkills.slice(0, 15).reverse()
 
   return (
+    <>
     <main className="max-w-6xl mx-auto px-4 py-10 space-y-6">
 
       {/* ── Hero ── */}
@@ -299,9 +434,9 @@ export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
 
       {/* ── Stat cards ── */}
       <div className="grid grid-cols-3 gap-4">
-        <StatCard label="Active Positions"  value={totalJobs.toLocaleString()}                    sub="updated daily"  delay={0.05} onClick={() => onNavigateJobs?.({ label: 'All' })} />
+        <StatCard label="Active Positions"  value={totalJobs.toLocaleString()}                    sub="updated daily"  delay={0.05} onClick={() => onNavigateJobs?.({ label: 'All Jobs' })} />
         <StatCard label="Companies Tracked" value={totalCompanies.toLocaleString()}               sub="& growing"      delay={0.10} onClick={onNavigateCompanies} />
-        <StatCard label="Unique Skills"     value={topSkills.length > 0 ? `${topSkills.length}+` : '—'} sub="in job postings" delay={0.15} />
+        <StatCard label="Unique Skills"     value={topSkills.length > 0 ? `${topSkills.length}+` : '—'} sub="click to explore" delay={0.15} onClick={topSkills.length > 0 ? () => setShowSkills(true) : undefined} />
       </div>
 
       {/* ── Remote breakdown — clickable ── */}
@@ -311,7 +446,7 @@ export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
         <p className="text-xs mb-4" style={{ color: 'var(--text-4)' }}>Click a card to browse those jobs</p>
         <div className="flex gap-3">
           {remoteBreakdown.map(r => (
-            <RemotePill key={r.type} {...r} total={totalRemote} onClick={() => onNavigateJobs?.({ remote_type: r.type, label: r.type })} />
+            <RemotePill key={r.type} {...r} total={totalRemote} onClick={() => onNavigateJobs?.({ remote_type: r.type, label: `${r.type} Roles` })} />
           ))}
         </div>
       </Panel>
@@ -330,7 +465,7 @@ export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
               <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="skill" width={88} tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
-              <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={18} style={{ cursor: 'pointer' }} onClick={data => onNavigateJobs?.({ query: data.skill, label: data.skill })}>
+              <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={18} style={{ cursor: 'pointer' }} onClick={data => onNavigateJobs?.({ query: data.skill, label: `${data.skill} Jobs` })}>
                 {chartSkills.map((entry, i) => (
                   <Cell key={entry.skill} fill={barColor(i, chartSkills.length)} />
                 ))}
@@ -365,7 +500,7 @@ export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
                     labelLine={false}
                     label={PieLabel}
                     style={{ cursor: 'pointer' }}
-                    onClick={data => onNavigateJobs?.({ query: data.name })}
+                    onClick={data => onNavigateJobs?.({ query: data.name, label: `${data.name} Roles` })}
                   >
                     {roleCategories.slice(0, 10).map((entry, i) => (
                       <Cell key={entry.name} fill={ROLE_COLORS[i % ROLE_COLORS.length]} fillOpacity={0.85} />
@@ -379,7 +514,7 @@ export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
                 {roleCategories.slice(0, 8).map((r, i) => (
                   <button
                     key={r.name}
-                    onClick={() => onNavigateJobs?.({ query: r.name, label: r.name })}
+                    onClick={() => onNavigateJobs?.({ query: r.name, label: `${r.name} Roles` })}
                     className="flex items-center justify-between text-xs w-full rounded-lg px-2 py-1.5 transition-colors text-left"
                     style={{ color: 'var(--text-3)' }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
@@ -404,5 +539,15 @@ export default function InsightsPage({ onNavigateJobs, onNavigateCompanies }) {
       </div>
 
     </main>
+
+    {/* Skills explorer modal — mounted outside main so it overlays everything */}
+    {showSkills && (
+      <SkillsModal
+        skills={topSkills}
+        onClose={() => setShowSkills(false)}
+        onNavigateJobs={onNavigateJobs}
+      />
+    )}
+  </>
   )
 }

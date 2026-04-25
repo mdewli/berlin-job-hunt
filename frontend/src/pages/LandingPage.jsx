@@ -57,52 +57,207 @@ export default function LandingPage({ onSearch, onFilterClick, onBrowseAll, tota
       className="min-h-screen flex flex-col items-center justify-start pt-12 sm:pt-16 pb-24 px-4 relative overflow-hidden"
       style={{ background: '#070B10' }}
     >
-      {/* ── Gritty background layers ──────────────────────────────────── */}
-      {/* Grainy overlay */}
+      {/* ── SVG defs (noise + graffiti texture filters) ───────────────── */}
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <filter id="noise-filter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" result="noisy" />
+            <feColorMatrix type="saturate" values="0" in="noisy" result="grey" />
+            <feBlend in="SourceGraphic" in2="grey" mode="overlay" result="blended" />
+            <feComposite in="blended" in2="SourceGraphic" operator="in" />
+          </filter>
+          <filter id="graffiti-filter">
+            <feTurbulence type="turbulence" baseFrequency="0.02 0.05" numOctaves="3" seed="5" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="6" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* ── Layer 1: Dark concrete wall gradient base ─────────────────── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(ellipse 120% 60% at 50% 100%, rgba(10,14,20,0.95) 0%, transparent 60%),
+            radial-gradient(ellipse 80% 50% at 20% 80%, rgba(0,20,10,0.4) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 40% at 80% 70%, rgba(0,40,80,0.18) 0%, transparent 50%)
+          `,
+        }}
+      />
+
+      {/* ── Layer 2: Concrete wall texture (grain) ─────────────────────── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+          opacity: 0.03,
+          mixBlendMode: 'overlay',
+        }}
+      />
+
+      {/* ── Layer 3: Horizontal scan-line / wall-block texture ────────── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            repeating-linear-gradient(
+              0deg,
+              transparent,
+              transparent 39px,
+              rgba(255,255,255,0.012) 39px,
+              rgba(255,255,255,0.012) 40px
+            )
+          `,
+        }}
+      />
+
+      {/* ── Layer 4: Neon green ambient glow (top center) ─────────────── */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
-        opacity: 0.5,
+        background: 'radial-gradient(ellipse 60% 45% at 50% 20%, rgba(0,255,135,0.06) 0%, transparent 65%)',
       }} />
 
-      {/* Radial glows */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse 70% 60% at 50% 30%, rgba(0,255,135,0.05) 0%, transparent 70%)',
-      }} />
+      {/* ── Layer 5: Brandenburg Gate — large, centered, atmospheric ─── */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          bottom: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '900px',
+          opacity: 1,
+        }}
+      >
+        <svg
+          viewBox="0 0 900 320"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMax meet"
+          style={{ width: '100%', display: 'block' }}
+        >
+          <defs>
+            {/* Gradient: solid at bottom, fades to transparent at top */}
+            <linearGradient id="gateGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#00FF87" stopOpacity="0.0" />
+              <stop offset="45%"  stopColor="#00FF87" stopOpacity="0.04" />
+              <stop offset="100%" stopColor="#00FF87" stopOpacity="0.10" />
+            </linearGradient>
+            <linearGradient id="gateStroke" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#00FF87" stopOpacity="0.0" />
+              <stop offset="50%"  stopColor="#00FF87" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#00FF87" stopOpacity="0.22" />
+            </linearGradient>
+          </defs>
 
-      {/* Berlin skyline silhouette — SVG */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ opacity: 0.06 }}>
-        <svg viewBox="0 0 1440 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style={{ width: '100%', height: '200px' }}>
-          {/* Brandenburg Gate */}
-          <rect x="620" y="80" width="200" height="120" fill="white"/>
-          <rect x="620" y="60" width="20" height="40" fill="white"/>
-          <rect x="800" y="60" width="20" height="40" fill="white"/>
-          <rect x="650" y="60" width="140" height="20" fill="white"/>
-          <rect x="670" y="40" width="100" height="20" fill="white"/>
-          <rect x="700" y="20" width="40" height="20" fill="white"/>
-          {/* TV Tower */}
-          <rect x="200" y="10" width="6" height="180" fill="white"/>
-          <ellipse cx="203" cy="70" rx="20" ry="22" fill="white"/>
-          {/* Buildings left */}
-          <rect x="0"   y="120" width="80"  height="80" fill="white"/>
-          <rect x="85"  y="100" width="60"  height="100" fill="white"/>
-          <rect x="150" y="130" width="45"  height="70" fill="white"/>
-          <rect x="300" y="110" width="70"  height="90" fill="white"/>
-          <rect x="380" y="90"  width="50"  height="110" fill="white"/>
-          <rect x="440" y="120" width="55"  height="80" fill="white"/>
-          <rect x="500" y="105" width="40"  height="95" fill="white"/>
-          {/* Buildings right */}
-          <rect x="850"  y="115" width="55"  height="85" fill="white"/>
-          <rect x="910"  y="95"  width="65"  height="105" fill="white"/>
-          <rect x="980"  y="125" width="50"  height="75" fill="white"/>
-          <rect x="1040" y="100" width="70"  height="100" fill="white"/>
-          <rect x="1120" y="120" width="55"  height="80" fill="white"/>
-          <rect x="1180" y="90"  width="80"  height="110" fill="white"/>
-          <rect x="1270" y="110" width="60"  height="90" fill="white"/>
-          <rect x="1340" y="130" width="100" height="70" fill="white"/>
+          {/* ── Quadriga (chariot on top) ── */}
+          {/* Chariot platform */}
+          <rect x="390" y="58" width="120" height="14" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          {/* Horses silhouettes */}
+          <ellipse cx="405" cy="54" rx="12" ry="8" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5"/>
+          <ellipse cx="425" cy="50" rx="12" ry="9" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5"/>
+          <ellipse cx="450" cy="48" rx="13" ry="9" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5"/>
+          <ellipse cx="475" cy="50" rx="12" ry="9" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5"/>
+          <ellipse cx="495" cy="54" rx="12" ry="8" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5"/>
+          {/* Rider */}
+          <ellipse cx="450" cy="44" rx="6" ry="6" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5"/>
+          <rect x="447" y="44" width="6" height="12" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5"/>
+
+          {/* ── Attic (top decorative block) ── */}
+          <rect x="335" y="72" width="230" height="32" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          {/* Attic decorative reliefs */}
+          {[350,375,400,425,450,475,500,525].map((x, i) => (
+            <rect key={i} x={x} y="76" width="16" height="24" rx="1"
+              fill="none" stroke="url(#gateStroke)" strokeWidth="0.4" opacity="0.6"/>
+          ))}
+
+          {/* ── Entablature (main horizontal beam) ── */}
+          <rect x="325" y="104" width="250" height="18" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+
+          {/* ── 6 Doric columns ── */}
+          {[345, 381, 417, 453, 489, 525].map((x, i) => (
+            <g key={i}>
+              {/* Column shaft */}
+              <rect x={x} y="122" width="22" height="150" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+              {/* Capital (top) */}
+              <rect x={x - 3} y="119" width="28" height="6" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+              {/* Base */}
+              <rect x={x - 3} y="270" width="28" height="6" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+            </g>
+          ))}
+
+          {/* ── Stylobate (column base platform) ── */}
+          <rect x="320" y="276" width="260" height="8"  fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          <rect x="315" y="284" width="270" height="6"  fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          <rect x="310" y="290" width="280" height="30" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+
+          {/* ── Side wings (guardhouses) ── */}
+          {/* Left wing */}
+          <rect x="220" y="175" width="105" height="145" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          <rect x="215" y="168" width="115" height="10" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          {/* Left wing windows */}
+          {[230, 258, 286].map((x, i) => (
+            <rect key={i} x={x} y="195" width="16" height="22" rx="1"
+              fill="none" stroke="url(#gateStroke)" strokeWidth="0.5" opacity="0.7"/>
+          ))}
+          {/* Right wing */}
+          <rect x="575" y="175" width="105" height="145" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          <rect x="570" y="168" width="115" height="10" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.5" />
+          {/* Right wing windows */}
+          {[584, 612, 640].map((x, i) => (
+            <rect key={i} x={x} y="195" width="16" height="22" rx="1"
+              fill="none" stroke="url(#gateStroke)" strokeWidth="0.5" opacity="0.7"/>
+          ))}
+
+          {/* ── Ground floor / arch passages (between columns) ── */}
+          {/* Main central arch */}
+          <path d="M417,122 L417,270 Q450,250 483,270 L483,122" fill="rgba(0,0,0,0.3)" />
+
+          {/* ── Flanking buildings (left) ── */}
+          <rect x="60"  y="200" width="80"  height="120" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.5"/>
+          <rect x="150" y="220" width="60"  height="100" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.4"/>
+          <rect x="0"   y="230" width="55"  height="90"  fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.4"/>
+
+          {/* ── Flanking buildings (right) ── */}
+          <rect x="760" y="200" width="80"  height="120" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.5"/>
+          <rect x="690" y="220" width="60"  height="100" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.4"/>
+          <rect x="845" y="230" width="55"  height="90"  fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.4"/>
+
+          {/* ── TV Tower (far left silhouette) ── */}
+          <rect x="32" y="40" width="5" height="180" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.35"/>
+          <ellipse cx="34.5" cy="110" rx="14" ry="16" fill="url(#gateGrad)" stroke="url(#gateStroke)" strokeWidth="0.3" opacity="0.35"/>
+
+          {/* ── Ground line ── */}
+          <rect x="0" y="318" width="900" height="2" fill="url(#gateGrad)" />
         </svg>
       </div>
 
-      {/* ── Logo / Hero text ─────────────────────────────────────────── */}
+      {/* ── Layer 6: Bottom fog / fade to dark ─────────────────────────── */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: '200px',
+          background: 'linear-gradient(to top, #070B10 0%, rgba(7,11,16,0.85) 40%, transparent 100%)',
+        }}
+      />
+
+      {/* ── Layer 7: Subtle graffiti spray marks (decorative SVG) ──────── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ opacity: 0.045 }}
+      >
+        <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} preserveAspectRatio="none">
+          {/* Abstract spray shapes mimicking graffiti highlights */}
+          <ellipse cx="120" cy="200" rx="90" ry="30" fill="#00FF87" transform="rotate(-15,120,200)" />
+          <ellipse cx="1320" cy="350" rx="70" ry="22" fill="#00FF87" transform="rotate(10,1320,350)" />
+          <ellipse cx="200" cy="600" rx="110" ry="18" fill="#00AAFF" transform="rotate(5,200,600)" />
+          <ellipse cx="1100" cy="150" rx="80" ry="15" fill="#FF4466" transform="rotate(-8,1100,150)" />
+          {/* Drips */}
+          <path d="M115,215 Q118,240 116,265" stroke="#00FF87" strokeWidth="3" fill="none" opacity="0.6"/>
+          <path d="M1315,365 Q1318,388 1316,410" stroke="#00FF87" strokeWidth="2.5" fill="none" opacity="0.6"/>
+          <path d="M198,615 Q201,638 199,660" stroke="#00AAFF" strokeWidth="2.5" fill="none" opacity="0.5"/>
+        </svg>
+      </div>
+
+      {/* ── Foreground content ────────────────────────────────────────── */}
       <motion.div
         className="text-center z-10 w-full max-w-3xl"
         initial={{ opacity: 0, y: -20 }}
@@ -121,10 +276,10 @@ export default function LandingPage({ onSearch, onFilterClick, onBrowseAll, tota
             fontSize: 'clamp(2.8rem, 8vw, 5.5rem)',
             letterSpacing: '-0.03em',
             color: '#fff',
-            textShadow: '0 0 60px rgba(0,255,135,0.15)',
+            textShadow: '0 0 80px rgba(0,255,135,0.18), 0 2px 4px rgba(0,0,0,0.8)',
           }}
         >
-          Berlin<span style={{ color: '#00FF87', textShadow: '0 0 40px rgba(0,255,135,0.5)' }}>JobHunt</span>
+          Berlin<span style={{ color: '#00FF87', textShadow: '0 0 40px rgba(0,255,135,0.55)' }}>JobHunt</span>
         </h1>
 
         {/* Tagline */}
@@ -153,15 +308,15 @@ export default function LandingPage({ onSearch, onFilterClick, onBrowseAll, tota
               border: '1px solid rgba(255,255,255,0.14)',
               color: 'rgba(255,255,255,0.92)',
               fontSize: '0.9375rem',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
             }}
             onFocus={e => {
               e.currentTarget.style.borderColor = 'rgba(0,255,135,0.45)'
-              e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.4), 0 0 0 3px rgba(0,255,135,0.10)'
+              e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.5), 0 0 0 3px rgba(0,255,135,0.10)'
             }}
             onBlur={e => {
               e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'
-              e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.4)'
+              e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.5)'
             }}
           />
           <button

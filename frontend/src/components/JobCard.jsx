@@ -217,15 +217,28 @@ export default function JobCard({ job, isSaved, onSaveToggle, onQuickView }) {
 
       {/* Footer actions */}
       <div className="flex items-center justify-between pl-4">
-        {/* Quick-view hint */}
+        {/* Quick-view button — clearly visible pill */}
         <button
           onClick={() => onQuickView?.(job)}
-          className="text-xs transition-colors"
-          style={{ color: 'var(--text-3)' }}
-          onMouseEnter={e => e.currentTarget.style.color = '#00FF87'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-3)'}
+          className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-all"
+          style={{
+            color: 'rgba(255,255,255,0.70)',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.10)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.color = '#00FF87'
+            e.currentTarget.style.borderColor = 'rgba(0,255,135,0.35)'
+            e.currentTarget.style.background = 'rgba(0,255,135,0.08)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.color = 'rgba(255,255,255,0.70)'
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.10)'
+            e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+          }}
         >
-          Quick view ↗
+          <span>Quick view</span>
+          <span style={{ opacity: 0.7 }}>↗</span>
         </button>
 
         <div className="flex items-center gap-2">

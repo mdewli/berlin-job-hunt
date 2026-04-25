@@ -185,7 +185,15 @@ export default function App() {
           <span>← Back to {backLabels[back] ?? back}</span>
         </button>
         <p className="text-xs font-bold tracking-widest uppercase mb-1.5" style={{ color: '#00CC6A', letterSpacing: '0.1em' }}>
-          {filterContext.backView === 'companies' ? 'Company Jobs' : 'Filtered Results'}
+          {filterContext.backView === 'companies'
+            ? 'Company'
+            : filterContext.label.startsWith('Jobs in ')
+              ? 'Berlin District'
+              : filterContext.label.endsWith('Roles')
+                ? 'Role Filter'
+                : filterContext.label.endsWith('Jobs')
+                  ? 'Job Filter'
+                  : 'Filtered Results'}
         </p>
         <h1
           className="font-bold mb-6"
@@ -196,10 +204,23 @@ export default function App() {
               Open roles at{' '}
               <span style={{ color: '#00FF87' }}>{filterContext.label.replace('Jobs at ', '')}</span>
             </>
-          ) : (
+          ) : filterContext.label.startsWith('Jobs in ') ? (
             <>
-              <span style={{ color: '#00FF87' }}>{filterContext.label}</span>{' '}jobs
+              {'Jobs in '}
+              <span style={{ color: '#00FF87' }}>{filterContext.label.replace('Jobs in ', '')}</span>
             </>
+          ) : filterContext.label.endsWith(' Roles') ? (
+            <>
+              <span style={{ color: '#00FF87' }}>{filterContext.label.replace(' Roles', '')}</span>
+              {' Roles'}
+            </>
+          ) : filterContext.label.endsWith(' Jobs') ? (
+            <>
+              <span style={{ color: '#00FF87' }}>{filterContext.label.replace(' Jobs', '')}</span>
+              {' Jobs'}
+            </>
+          ) : (
+            <span style={{ color: '#00FF87' }}>{filterContext.label}</span>
           )}
         </h1>
       </div>
