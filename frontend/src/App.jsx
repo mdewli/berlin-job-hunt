@@ -61,10 +61,13 @@ export default function App() {
   const handleSetFilters = v => { setFilters(v); setPage(1) }
 
   // ── Navigation helpers ────────────────────────────────────────────────────
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'instant' })
+
   const goToView = (newView, opts = {}) => {
     const { clearSearch = false } = opts
     setPreviousView(view)
     setView(newView)
+    scrollTop()
     if (clearSearch) {
       setQuery('')
       setFilters(INITIAL_FILTERS)
@@ -75,6 +78,7 @@ export default function App() {
 
   // Header view change — logo click always goes home and clears everything
   const handleViewChange = newView => {
+    scrollTop()
     if (newView === 'home') {
       setQuery('')
       setFilters(INITIAL_FILTERS)
@@ -265,7 +269,7 @@ export default function App() {
         onSavedClick={() => setShowSaved(true)}
       />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
 
         {/* ── Home / Landing ─────────────────────────────────────────── */}
         {view === 'home' && (

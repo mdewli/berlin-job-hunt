@@ -39,11 +39,7 @@
     color: var(--text-1);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Extra bottom padding on mobile so content isn't behind bottom nav */
-  @media (max-width: 639px) {
-    body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    overflow-x: hidden; /* prevent horizontal scroll */
   }
 }
 
@@ -266,54 +262,6 @@
   .text-muted    { color: var(--text-2); }
   .text-faint    { color: var(--text-3); }
 
-  /* ── Mobile bottom navigation bar ──────────────────────────────────────── */
-  .mobile-bottom-nav {
-    display: none;
-  }
-
-  @media (max-width: 639px) {
-    .mobile-bottom-nav {
-      display: flex;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 50;
-      background: rgba(7,11,16,0.97);
-      backdrop-filter: blur(16px) saturate(200%);
-      -webkit-backdrop-filter: blur(16px) saturate(200%);
-      border-top: 1px solid rgba(255,255,255,0.09);
-      padding-top: 8px;
-      padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
-      justify-content: space-around;
-    }
-
-    .mobile-nav-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      padding: 4px 12px;
-      border-radius: 12px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.18s ease;
-      background: transparent;
-      min-width: 60px;
-    }
-    .mobile-nav-btn .nav-icon { font-size: 1.15rem; line-height: 1.2; }
-    .mobile-nav-btn .nav-label {
-      font-size: 0.65rem;
-      font-weight: 500;
-      color: var(--text-3);
-      transition: color 0.18s;
-    }
-    .mobile-nav-btn.active {
-      background: rgba(0,255,135,0.07);
-      border-color: rgba(0,255,135,0.18);
-    }
-    .mobile-nav-btn.active .nav-label { color: #00FF87; }
-  }
 }
 
 /* ── Utilities ──────────────────────────────────────────────────────────────── */

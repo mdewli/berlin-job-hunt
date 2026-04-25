@@ -34,8 +34,7 @@ export function useCompanies({ query = '', size = '', hasJobs = false, page = 1 
     const from = (page - 1) * PAGE_SIZE
     const to   = from + PAGE_SIZE - 1
 
-    // Pull companies with the count of their active job postings
-    // We use a PostgREST aggregate: count of related rows through the FK
+    // Pull companies with the count of their ACTIVE job postings only
     let q = supabase
       .from('companies')
       .select(
@@ -44,6 +43,7 @@ export function useCompanies({ query = '', size = '', hasJobs = false, page = 1 
         { count: 'exact' }
       )
       .eq('is_active', true)
+      .eq('job_postings.is_active', true)   // ← only count active postings
       .order('name', { ascending: true })
       .range(from, to)
 

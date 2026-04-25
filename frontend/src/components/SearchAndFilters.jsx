@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const REMOTE_OPTIONS = ['', 'Full-Remote', 'Hybrid', 'On-site']
 const SIZE_OPTIONS   = ['', 'Micro', 'Startup', 'Mid-size', 'Enterprise']
 
@@ -68,8 +70,18 @@ export default function SearchAndFilters({
   const toggle = key => setFilters(f => ({ ...f, [key]: !f[key] }))
   const set    = key => val => setFilters(f => ({ ...f, [key]: val }))
 
+  const [filtersOpen, setFiltersOpen] = useState(false)
+
+  // Count active filters for the toggle button badge
+  const activeFilterCount = [
+    filters.berlin,
+    filters.english_only,
+    filters.remote_type,
+    filters.company_size,
+  ].filter(Boolean).length
+
   return (
-    <div className="glass-panel sticky top-16 z-30">
+    <div className="glass-panel sticky top-[100px] sm:top-14 z-30">
       <div className="py-3 px-4">
         <div className="max-w-2xl mx-auto space-y-2.5">
 
@@ -106,25 +118,46 @@ export default function SearchAndFilters({
             </div>
           )}
 
-          {/* Search */}
-          <div className="relative">
-            <span
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm"
-              style={{ color: 'rgba(255,255,255,0.28)' }}
+          {/* Search row — always visible */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <span
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm"
+                style={{ color: 'rgba(255,255,255,0.28)' }}
+              >
+                🔍
+              </span>
+              <input
+                type="search"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search jobs, technologies..."
+                className="input pl-10"
+              />
+            </div>
+
+            {/* Mobile-only filter toggle button */}
+            <button
+              onClick={() => setFiltersOpen(o => !o)}
+              className="sm:hidden flex items-center gap-1.5 px-3 rounded-xl text-xs font-bold transition-all shrink-0"
+              style={{
+                borderRadius: '0.75rem',
+                border: filtersOpen || activeFilterCount > 0
+                  ? '1px solid rgba(0,255,135,0.50)'
+                  : '1px solid rgba(255,255,255,0.18)',
+                color: filtersOpen || activeFilterCount > 0 ? '#00FF87' : 'rgba(255,255,255,0.55)',
+                background: filtersOpen || activeFilterCount > 0
+                  ? 'rgba(0,255,135,0.10)'
+                  : 'rgba(255,255,255,0.04)',
+              }}
             >
-              🔍
-            </span>
-            <input
-              type="search"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search jobs, companies, technologies..."
-              className="input pl-10"
-            />
+              <span>⚙</span>
+              <span>Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}</span>
+            </button>
           </div>
 
-          {/* Filter chips — centered, matching LandingPage FilterChip style */}
-          <div className="flex items-center justify-center gap-2 flex-wrap pb-0.5">
+          {/* Filter chips — always visible on desktop, toggled on mobile */}
+          <div className={`${filtersOpen ? 'flex' : 'hidden'} sm:flex items-center justify-center gap-2 flex-wrap pb-0.5`}>
             <Chip
               label="🏙 Berlin / Remote DE"
               active={filters.berlin}
