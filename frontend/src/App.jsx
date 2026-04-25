@@ -283,7 +283,7 @@ export default function App() {
 
         {/* ── Companies ──────────────────────────────────────────────── */}
         {view === 'companies' && (
-          <motion.div key="companies" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+          <motion.div key="companies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <CompaniesPage
               onLoginClick={() => setShowAuth(true)}
               onCompanyJobsClick={handleCompanyJobsClick}
@@ -293,7 +293,7 @@ export default function App() {
 
         {/* ── Insights ───────────────────────────────────────────────── */}
         {view === 'insights' && (
-          <motion.div key="insights" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+          <motion.div key="insights" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <InsightsPage
               onNavigateJobs={handleInsightsFilter}
               onNavigateCompanies={() => goToView('companies')}
@@ -303,7 +303,7 @@ export default function App() {
 
         {/* ── Jobs ───────────────────────────────────────────────────── */}
         {view === 'jobs' && (
-          <motion.div key="jobs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+          <motion.div key="jobs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
 
             {/* Show filters bar OR context header — never both */}
             {filterContext ? (
