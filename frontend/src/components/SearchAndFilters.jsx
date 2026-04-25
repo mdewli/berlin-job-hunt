@@ -136,10 +136,10 @@ export default function SearchAndFilters({
               />
             </div>
 
-            {/* Mobile-only filter toggle button */}
+            {/* Filter toggle button — visible on all screen sizes */}
             <button
               onClick={() => setFiltersOpen(o => !o)}
-              className="sm:hidden flex items-center gap-1.5 px-3 rounded-xl text-xs font-bold transition-all shrink-0"
+              className="flex items-center gap-1.5 px-3 text-xs font-bold transition-all shrink-0"
               style={{
                 borderRadius: '0.75rem',
                 border: filtersOpen || activeFilterCount > 0
@@ -151,13 +151,13 @@ export default function SearchAndFilters({
                   : 'rgba(255,255,255,0.04)',
               }}
             >
-              <span>⚙</span>
+              <span style={{ fontSize: '0.85rem' }}>⚙</span>
               <span>Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}</span>
             </button>
           </div>
 
-          {/* Filter chips — always visible on desktop, toggled on mobile */}
-          <div className={`${filtersOpen ? 'flex' : 'hidden'} sm:flex items-center justify-center gap-2 flex-wrap pb-0.5`}>
+          {/* Filter chips — toggled on all screen sizes */}
+          <div className={`${filtersOpen ? 'flex' : 'hidden'} items-center justify-center gap-2 flex-wrap pb-0.5`}>
             <Chip
               label="🏙 Berlin / Remote DE"
               active={filters.berlin}

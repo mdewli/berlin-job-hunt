@@ -8,6 +8,7 @@ export default function Header({
   onLoginClick,
   onLogout,
   onSavedClick,
+  onProfileClick,
 }) {
   const isJobs      = view === 'jobs'
   const isCompanies = view === 'companies'
@@ -43,36 +44,52 @@ export default function Header({
           <button className={`nav-tab ${isInsights ? 'active' : ''}`}  onClick={() => onViewChange?.('insights')}>Insights</button>
         </nav>
 
-        {/* Right — auth */}
-        <div className="flex items-center gap-2 justify-self-end">
-          {user && (
-            <button
-              onClick={onSavedClick}
-              title="Saved jobs"
-              className="btn-dim relative px-2.5 py-1.5"
-            >
-              <span style={{ color: savedCount > 0 ? '#fb7185' : undefined }}>
-                {savedCount > 0 ? '♥' : '♡'}
-              </span>
-              <span className="hidden sm:inline ml-1 text-xs">Saved</span>
-              {savedCount > 0 && (
-                <span
-                  className="absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
-                  style={{ background: '#ef4444' }}
-                >
-                  {savedCount > 9 ? '9+' : savedCount}
-                </span>
-              )}
-            </button>
-          )}
-
+        {/* Right — auth (hidden on mobile; sign-in lives in the tab row below) */}
+        <div className="hidden sm:flex items-center gap-2 justify-self-end">
           {user ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs hidden md:block truncate max-w-[110px]" style={{ color: 'var(--text-3)' }}>
-                {user.email}
-              </span>
-              <button onClick={onLogout} className="btn-dim text-xs">Sign out</button>
-            </div>
+            <>
+              {/* Heart / Saved badge */}
+              <button
+                onClick={onSavedClick}
+                title="Saved jobs"
+                className="btn-dim relative px-2.5 py-1.5"
+              >
+                <span style={{ color: savedCount > 0 ? '#fb7185' : undefined }}>
+                  {savedCount > 0 ? '♥' : '♡'}
+                </span>
+                <span className="ml-1 text-xs">Saved</span>
+                {savedCount > 0 && (
+                  <span
+                    className="absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                    style={{ background: '#ef4444' }}
+                  >
+                    {savedCount > 9 ? '9+' : savedCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Avatar / profile button */}
+              <button
+                onClick={onProfileClick}
+                title={user.email}
+                className="flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0,255,135,0.22), rgba(109,40,160,0.18))',
+                  border: '1px solid rgba(0,255,135,0.35)',
+                  color: '#00FF87',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'rgba(0,255,135,0.65)'
+                  e.currentTarget.style.boxShadow = '0 0 12px rgba(0,255,135,0.22)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'rgba(0,255,135,0.35)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
+              >
+                {user.email?.[0]?.toUpperCase() ?? '?'}
+              </button>
+            </>
           ) : (
             <button
               onClick={onLoginClick}
@@ -134,34 +151,31 @@ export default function Header({
           </button>
         ))}
 
-        {/* Saved / Sign-in slot */}
+        {/* Profile / Sign-in slot */}
         {user ? (
           <button
-            onClick={onSavedClick}
+            onClick={onProfileClick}
             className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all relative"
             style={{ background: 'transparent', borderBottom: '2px solid transparent' }}
           >
-            <span style={{ fontSize: '1rem', lineHeight: 1, color: savedCount > 0 ? '#fb7185' : 'rgba(255,255,255,0.4)' }}>
-              {savedCount > 0 ? '♥' : '♡'}
+            {/* Avatar circle */}
+            <span
+              className="flex items-center justify-center w-5 h-5 rounded-full font-bold text-[0.5rem]"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,255,135,0.3), rgba(109,40,160,0.2))',
+                border: '1px solid rgba(0,255,135,0.4)',
+                color: '#00FF87',
+                lineHeight: 1,
+              }}
+            >
+              {user.email?.[0]?.toUpperCase() ?? '?'}
             </span>
             <span
               className="font-medium"
-              style={{
-                fontSize: '0.6rem',
-                letterSpacing: '0.04em',
-                color: savedCount > 0 ? '#fb7185' : 'rgba(255,255,255,0.4)',
-              }}
+              style={{ fontSize: '0.6rem', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.4)' }}
             >
-              {savedCount > 0 ? savedCount : 'Saved'}
+              {savedCount > 0 ? `♥ ${savedCount}` : 'Profile'}
             </span>
-            {savedCount > 0 && (
-              <span
-                className="absolute top-1 right-3 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center"
-                style={{ background: '#ef4444' }}
-              >
-                {savedCount > 9 ? '9+' : savedCount}
-              </span>
-            )}
           </button>
         ) : (
           <button
