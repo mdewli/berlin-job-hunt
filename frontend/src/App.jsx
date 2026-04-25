@@ -229,7 +229,31 @@ export default function App() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen font-sans">
+    <div className="min-h-screen font-sans relative">
+
+      {/* ── Global background: photo + dark overlay, fixed so it never scrolls ── */}
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 0,
+          backgroundImage: "url('/berlin-bg.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 1,
+          background: 'rgba(7,11,16,0.72)',
+        }}
+      />
+
+      {/* ── All page content sits above the background ── */}
+      <div className="relative" style={{ zIndex: 2 }}>
 
       <Header
         user={user}
@@ -409,6 +433,7 @@ export default function App() {
           signInWithGoogle={signInWithGoogle}
         />
       )}
+      </div>{/* end z-2 content wrapper */}
     </div>
   )
 }

@@ -55,40 +55,13 @@ export default function LandingPage({ onSearch, onFilterClick, onBrowseAll, tota
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start relative overflow-hidden"
-      style={{ background: '#070B10' }}
-    >
-      {/* ── Background photo ─────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `url('/berlin-bg.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 30%',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
+    <div className="min-h-screen flex flex-col items-center justify-start relative overflow-hidden">
 
-      {/* ── Dark overlay: top heavy (keeps content readable) ─────────────── */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `
-            linear-gradient(to bottom,
-              rgba(7,11,16,0.72) 0%,
-              rgba(7,11,16,0.55) 35%,
-              rgba(7,11,16,0.65) 65%,
-              rgba(7,11,16,0.92) 100%
-            )
-          `,
-        }}
-      />
-
-      {/* ── Neon green ambient glow (top center) ─────────────────────────── */}
+      {/* ── Neon green ambient glow — sits on top of the global background ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 55% 40% at 50% 15%, rgba(0,255,135,0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 60% 50% at 50% 20%, rgba(0,255,135,0.06) 0%, transparent 70%)',
         }}
       />
 
@@ -104,11 +77,11 @@ export default function LandingPage({ onSearch, onFilterClick, onBrowseAll, tota
           <div
             className="rounded-2xl px-6 sm:px-10 py-8 sm:py-10 text-center"
             style={{
-              background: 'rgba(7,11,16,0.58)',
-              border: '1px solid rgba(255,255,255,0.10)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              boxShadow: '0 8px 48px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)',
+              background: 'rgba(7,11,16,0.45)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              boxShadow: '0 8px 48px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.08)',
             }}
           >
             {/* Eyebrow */}
