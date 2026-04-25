@@ -77,7 +77,7 @@ export default function LandingPage({ onSearch, onFilterClick, onBrowseAll, tota
           <div
             className="rounded-2xl px-6 sm:px-10 py-8 sm:py-10 text-center"
             style={{
-              background: 'rgba(7,11,16,0.45)',
+              background: 'rgba(7,11,16,0.28)',
               border: '1px solid rgba(255,255,255,0.12)',
               backdropFilter: 'blur(24px) saturate(180%)',
               WebkitBackdropFilter: 'blur(24px) saturate(180%)',
