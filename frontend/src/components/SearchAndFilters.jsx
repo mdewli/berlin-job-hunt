@@ -7,9 +7,9 @@ function Chip({ label, active, onClick }) {
       onClick={onClick}
       className="px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wide whitespace-nowrap transition-all"
       style={active ? {
-        background: 'rgba(212,175,55,0.14)',
-        border: '1px solid rgba(212,175,55,0.35)',
-        color: '#D4AF37',
+        background: 'rgba(0,255,135,0.14)',
+        border: '1px solid rgba(0,255,135,0.35)',
+        color: '#00FF87',
       } : {
         background: 'rgba(255,255,255,0.05)',
         border: '1px solid rgba(255,255,255,0.08)',
@@ -28,9 +28,9 @@ function GlassSelect({ value, onChange, options, placeholder }) {
       onChange={e => onChange(e.target.value)}
       className="text-xs rounded-full px-3.5 py-1.5 cursor-pointer appearance-none outline-none transition-all"
       style={{
-        background: value ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.05)',
-        border: value ? '1px solid rgba(212,175,55,0.30)' : '1px solid rgba(255,255,255,0.08)',
-        color: value ? '#D4AF37' : 'rgba(255,255,255,0.55)',
+        background: value ? 'rgba(0,255,135,0.12)' : 'rgba(255,255,255,0.05)',
+        border: value ? '1px solid rgba(0,255,135,0.30)' : '1px solid rgba(255,255,255,0.08)',
+        color: value ? '#00FF87' : 'rgba(255,255,255,0.55)',
       }}
     >
       <option value="" style={{ background: '#151921', color: '#fff' }}>{placeholder}</option>
@@ -60,12 +60,12 @@ export default function SearchAndFilters({
           <div
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium"
             style={{
-              background: 'rgba(212,175,55,0.10)',
-              border: '1px solid rgba(212,175,55,0.28)',
+              background: 'rgba(0,255,135,0.10)',
+              border: '1px solid rgba(0,255,135,0.28)',
             }}
           >
             <span style={{ color: 'rgba(255,255,255,0.45)' }}>Showing jobs at</span>
-            <span style={{ color: '#D4AF37' }}>{companyFilterName}</span>
+            <span style={{ color: '#00FF87' }}>{companyFilterName}</span>
             <button
               onClick={onClearCompany}
               className="ml-auto flex items-center gap-1 rounded-full px-2 py-0.5 transition-all"

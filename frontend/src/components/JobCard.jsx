@@ -54,7 +54,7 @@ function CompanyLogo({ name, homepageUrl }) {
     return (
       <div
         className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-semibold font-display shrink-0 select-none"
-        style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.18)', color: '#D4AF37' }}
+        style={{ background: 'rgba(0,255,135,0.10)', border: '1px solid rgba(0,255,135,0.18)', color: '#00FF87' }}
       >
         {initials}
       </div>
@@ -109,7 +109,7 @@ export default function JobCard({ job, isSaved, onSaveToggle, onQuickView }) {
     <motion.article
       className="card p-5 flex flex-col gap-3 relative overflow-hidden cursor-default"
       variants={cardVariant}
-      whileHover={{ y: -5, boxShadow: '0px 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,175,55,0.18)' }}
+      whileHover={{ y: -5, boxShadow: '0px 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,255,135,0.15)' }}
       transition={{ duration: 0.2 }}
       layout
     >
@@ -127,7 +127,7 @@ export default function JobCard({ job, isSaved, onSaveToggle, onQuickView }) {
           {/* Company name */}
           <p
             className="text-xs font-medium truncate"
-            style={{ color: '#D4AF37' }}
+            style={{ color: '#00FF87' }}
             title={company.name}
           >
             {company.name ?? 'Unknown company'}
@@ -148,7 +148,7 @@ export default function JobCard({ job, isSaved, onSaveToggle, onQuickView }) {
               </Badge>
             )}
             {job.is_in_berlin && (
-              <Badge style={{ bg: 'rgba(212,175,55,0.10)', text: '#D4AF37', border: 'rgba(212,175,55,0.22)' }}>
+              <Badge style={{ bg: 'rgba(0,255,135,0.10)', text: '#00FF87', border: 'rgba(0,255,135,0.22)' }}>
                 Berlin
               </Badge>
             )}
@@ -164,7 +164,7 @@ export default function JobCard({ job, isSaved, onSaveToggle, onQuickView }) {
           onClick={() => onQuickView?.(job)}
           title="Quick view"
         >
-          <span className="hover:text-[#D4AF37] transition-colors duration-150">{job.title}</span>
+          <span className="hover:text-[#00FF87] transition-colors duration-150">{job.title}</span>
         </h2>
         {job.role_category && (
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
@@ -222,27 +222,28 @@ export default function JobCard({ job, isSaved, onSaveToggle, onQuickView }) {
           onClick={() => onQuickView?.(job)}
           className="text-xs transition-colors"
           style={{ color: 'var(--text-3)' }}
-          onMouseEnter={e => e.currentTarget.style.color = '#D4AF37'}
+          onMouseEnter={e => e.currentTarget.style.color = '#00FF87'}
           onMouseLeave={e => e.currentTarget.style.color = 'var(--text-3)'}
         >
           Quick view ↗
         </button>
 
         <div className="flex items-center gap-2">
-          {/* Save heart */}
+          {/* Save button with label */}
           <motion.button
             onClick={handleSave}
             disabled={saving}
-            title={isSaved ? 'Unsave' : 'Save'}
-            whileTap={{ scale: 0.88 }}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all"
+            whileTap={{ scale: 0.92 }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
             style={{
-              background:   isSaved ? 'rgba(244,63,94,0.12)' : 'rgba(255,255,255,0.05)',
-              border:       isSaved ? '1px solid rgba(244,63,94,0.28)' : '1px solid var(--border)',
-              color:        isSaved ? '#fb7185' : 'var(--text-3)',
+              background:  isSaved ? 'rgba(251,113,133,0.12)' : 'rgba(0,255,135,0.07)',
+              border:      isSaved ? '1px solid rgba(251,113,133,0.30)' : '1px solid rgba(0,255,135,0.28)',
+              color:       isSaved ? '#fb7185' : '#00FF87',
+              letterSpacing: '0.02em',
             }}
           >
-            {saving ? '…' : isSaved ? '♥' : '♡'}
+            <span aria-hidden>{saving ? '…' : isSaved ? '♥' : '♡'}</span>
+            {!saving && <span>{isSaved ? 'Saved' : 'Save'}</span>}
           </motion.button>
 
           {/* Ghost Apply button — fills on hover */}

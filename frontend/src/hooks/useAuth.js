@@ -4,10 +4,10 @@ import { supabase } from '../lib/supabase'
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
 export function useAuth() {
-  const [user,       setUser]       = useState(null)
-  const [loading,    setLoading]    = useState(true)
-  const [savedIds,   setSavedIds]   = useState(new Set())
-  const [savedJobs,  setSavedJobs]  = useState([])  // full job objects
+  const [user,      setUser]      = useState(null)
+  const [loading,   setLoading]   = useState(true)
+  const [savedIds,  setSavedIds]  = useState(new Set())
+  const [savedJobs, setSavedJobs] = useState([])
 
   // Session hydration + auth state listener
   useEffect(() => {
@@ -39,7 +39,6 @@ export function useAuth() {
       })
         .then(r => (r.ok ? r.json() : []))
         .then(data => {
-          // Response: [{id, job: {id, title, company, ...}, created_at}, ...]
           const items = Array.isArray(data) ? data : (data.results ?? [])
           setSavedIds(new Set(items.map(item => item.job?.id ?? item.job_id)))
           setSavedJobs(items.map(item => item.job).filter(Boolean))
@@ -48,7 +47,8 @@ export function useAuth() {
     })
   }, [user])
 
-  // Auth actions
+  // ── Auth actions ─────────────────────────────────────────────────────────
+
   const signUpWithEmail = async (email, password) => {
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw error
@@ -61,26 +61,26 @@ export function useAuth() {
     return data
   }
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    })
+    if (error) throw error
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
   }
 
-  /**
-   * Returns the current JWT access token (auto-refreshed by Supabase).
-   */
   const getAccessToken = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     return session?.access_token ?? null
   }
 
-  /**
-   * Save or unsave a job via the Django API.
-   * Returns the new saved state (true/false), or null if not authenticated.
-   * Throws on API errors.
-   */
   const toggleSaved = async (jobId) => {
     const token = await getAccessToken()
-    if (!token) return null // signal to caller: open the auth modal
+    if (!token) return null
 
     const isSaved = savedIds.has(jobId)
     const method  = isSaved ? 'DELETE' : 'POST'
@@ -105,7 +105,6 @@ export function useAuth() {
       newState ? next.add(jobId) : next.delete(jobId)
       return next
     })
-    // savedJobs is re-fetched on next load; for instant UI remove on unsave
     if (!newState) {
       setSavedJobs(prev => prev.filter(j => j.id !== jobId))
     }
@@ -119,6 +118,7 @@ export function useAuth() {
     savedJobs,
     signUpWithEmail,
     signInWithEmail,
+    signInWithGoogle,
     signOut,
     getAccessToken,
     toggleSaved,

@@ -26,8 +26,8 @@ function GlassSelect({ value, onChange, options }) {
       onChange={e => onChange(e.target.value)}
       className="text-xs rounded-full px-3.5 py-2 cursor-pointer appearance-none outline-none transition-all"
       style={{
-        background: value ? 'rgba(212,168,83,0.15)' : 'rgba(255,255,255,0.06)',
-        border: value ? '1px solid rgba(212,168,83,0.35)' : '1px solid rgba(255,255,255,0.10)',
+        background: value ? 'rgba(0,255,135,0.15)' : 'rgba(255,255,255,0.06)',
+        border: value ? '1px solid rgba(0,255,135,0.35)' : '1px solid rgba(255,255,255,0.10)',
         color: value ? '#d4a853' : 'rgba(255,255,255,0.6)',
       }}
     >
@@ -136,8 +136,8 @@ export default function CompaniesPage({ onLoginClick, onCompanyJobsClick }) {
           onClick={() => handleJobs(!hasJobs)}
           className="px-3.5 py-2 rounded-full text-xs font-medium transition-all"
           style={hasJobs ? {
-            background: 'rgba(212,168,83,0.18)',
-            border: '1px solid rgba(212,168,83,0.4)',
+            background: 'rgba(0,255,135,0.18)',
+            border: '1px solid rgba(0,255,135,0.4)',
             color: '#d4a853',
           } : {
             background: 'rgba(255,255,255,0.06)',
@@ -269,8 +269,8 @@ function CompanyCard({ company, onJobsClick }) {
           className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0
             font-display font-semibold text-sm select-none"
           style={{
-            background: 'linear-gradient(135deg, rgba(212,168,83,0.2), rgba(109,40,160,0.15))',
-            border: '1px solid rgba(212,168,83,0.2)',
+            background: 'linear-gradient(135deg, rgba(0,255,135,0.2), rgba(109,40,160,0.15))',
+            border: '1px solid rgba(0,255,135,0.2)',
             color: '#d4a853',
           }}
         >

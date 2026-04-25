@@ -36,6 +36,7 @@ export default function App() {
     savedJobs,
     signInWithEmail,
     signUpWithEmail,
+    signInWithGoogle,
     signOut,
     toggleSaved,
   } = useAuth()
@@ -44,7 +45,37 @@ export default function App() {
   const [showSaved, setShowSaved] = useState(false)
 
   // ── View state ───────────────────────────────────────────────────────────
-  const [view, setView] = useState('jobs')
+  const [view,         setView]         = useState('jobs')
+  const [previousView, setPreviousView] = useState(null)
+
+  // Navigate to a view, optionally clearing search state
+  const navigateTo = (newView, { clearSearch = false } = {}) => {
+    setPreviousView(view)
+    setView(newView)
+    if (clearSearch) {
+      setQuery('')
+      setFilters(INITIAL_FILTERS)
+      setCompanyFilterName('')
+      setPage(1)
+    }
+  }
+
+  // Handle logo / "home" click — always clears search
+  const handleViewChange = newView => {
+    if (newView === 'home') {
+      navigateTo('jobs', { clearSearch: true })
+    } else {
+      navigateTo(newView)
+    }
+  }
+
+  // Back button — return to previous view
+  const handleBack = () => {
+    if (previousView) {
+      setView(previousView)
+      setPreviousView(null)
+    }
+  }
 
   // ── Quick View ───────────────────────────────────────────────────────────
   const [quickViewJob, setQuickViewJob] = useState(null)
@@ -60,6 +91,7 @@ export default function App() {
 
   // ── "View jobs at [Company]" — called from CompaniesPage ─────────────────
   const handleCompanyJobsClick = company => {
+    setPreviousView('companies')
     setFilters(f => ({ ...f, company_id: company.id }))
     setCompanyFilterName(company.name)
     setQuery('')
@@ -72,6 +104,17 @@ export default function App() {
     setFilters(f => ({ ...f, company_id: '' }))
     setCompanyFilterName('')
     setPage(1)
+  }
+
+  // ── Navigate from Insights → Jobs with a pre-set filter ──────────────────
+  const handleInsightsFilter = ({ query: q, remote_type, berlin } = {}) => {
+    if (q            !== undefined) setQuery(q)
+    if (remote_type  !== undefined) setFilters(f => ({ ...INITIAL_FILTERS, remote_type }))
+    if (berlin       !== undefined) setFilters(f => ({ ...INITIAL_FILTERS, berlin }))
+    setCompanyFilterName('')
+    setPage(1)
+    setView('jobs')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // ── Jobs data ─────────────────────────────────────────────────────────────
@@ -91,7 +134,7 @@ export default function App() {
         user={user}
         savedCount={savedIds.size}
         view={view}
-        onViewChange={setView}
+        onViewChange={handleViewChange}
         onLoginClick={() => setShowAuth(true)}
         onLogout={signOut}
         onSavedClick={() => setShowSaved(true)}
@@ -125,7 +168,7 @@ export default function App() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
           >
-            <InsightsPage />
+            <InsightsPage onNavigateJobs={handleInsightsFilter} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -157,29 +200,35 @@ export default function App() {
               <div className="mb-8">
                 {companyFilterName ? (
                   <>
-                    <p className="text-xs font-medium tracking-widest uppercase mb-2 text-gold">
+                    <button
+                      onClick={() => { handleClearCompany(); navigateTo('companies') }}
+                      className="text-xs mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all"
+                      style={{
+                        color: 'rgba(255,255,255,0.5)',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color='var(--text-1)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.18)' }}
+                      onMouseLeave={e => { e.currentTarget.style.color='rgba(255,255,255,0.5)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.08)' }}
+                    >
+                      ← Back to Companies
+                    </button>
+                    <p className="text-xs font-medium tracking-widest uppercase mb-2" style={{ color: '#00FF87' }}>
                       Company jobs
                     </p>
                     <h1 className="font-display font-semibold text-3xl sm:text-4xl" style={{ color: 'var(--text-1)' }}>
                       Open roles at
-                      <em className="not-italic" style={{ color: '#D4AF37' }}> {companyFilterName}</em>
+                      <em className="not-italic" style={{ color: '#00FF87' }}> {companyFilterName}</em>
                     </h1>
-                    <button
-                      onClick={handleClearCompany}
-                      className="text-xs mt-2 inline-flex items-center gap-1 transition-opacity opacity-50 hover:opacity-100"
-                      style={{ color: 'var(--text-3)' }}
-                    >
-                      ← Back to all jobs
-                    </button>
                   </>
                 ) : (
                   <>
-                    <p className="text-xs font-medium tracking-widest uppercase mb-2 text-gold">
+                    <p className="text-xs font-medium tracking-widest uppercase mb-2" style={{ color: '#00FF87' }}>
                       Job Feed
                     </p>
                     <h1 className="font-display font-semibold text-3xl sm:text-4xl" style={{ color: 'var(--text-1)' }}>
                       Tech careers
-                      <em className="not-italic" style={{ color: '#D4AF37' }}> in Berlin</em>
+                      <em className="not-italic" style={{ color: '#00FF87' }}> in Berlin</em>
                     </h1>
                     <p className="text-sm mt-2" style={{ color: 'var(--text-3)' }}>
                       English-friendly roles — updated daily from 1 000+ companies
@@ -318,6 +367,7 @@ export default function App() {
           onClose={() => setShowAuth(false)}
           signIn={signInWithEmail}
           signUp={signUpWithEmail}
+          signInWithGoogle={signInWithGoogle}
         />
       )}
     </div>

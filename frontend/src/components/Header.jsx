@@ -10,109 +10,105 @@ export default function Header({
   onSavedClick,
 }) {
   return (
-    <header className="glass-panel sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+    <>
+      {/* ── Top header bar ──────────────────────────────────────────────────── */}
+      <header className="glass-panel sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-3">
 
-        {/* Wordmark */}
-        <button
-          onClick={() => onViewChange?.('jobs')}
-          className="flex items-center gap-2.5 shrink-0"
-        >
-          <LogoLotus size={26} />
-          <span className="font-display font-semibold text-xl tracking-tight" style={{ color: 'var(--text-1)' }}>
-            Berlin<span style={{ color: '#D4AF37' }}>JobHunt</span>
-          </span>
-        </button>
-
-        {/* Nav tabs — desktop */}
-        <nav className="hidden sm:flex items-center gap-1">
+          {/* Logo — clicking clears everything and goes home */}
           <button
-            className={`nav-tab ${view === 'jobs' ? 'active' : ''}`}
-            onClick={() => onViewChange?.('jobs')}
+            onClick={() => onViewChange?.('home')}
+            className="flex items-center gap-2 shrink-0"
+            aria-label="Home"
           >
-            Jobs
+            <LogoLotus size={24} />
+            <span className="font-display font-semibold text-lg sm:text-xl tracking-tight" style={{ color: 'var(--text-1)' }}>
+              Berlin<span style={{ color: '#00FF87' }}>JobHunt</span>
+            </span>
           </button>
-          <button
-            className={`nav-tab ${view === 'companies' ? 'active' : ''}`}
-            onClick={() => onViewChange?.('companies')}
-          >
-            Companies
-          </button>
-          <button
-            className={`nav-tab ${view === 'insights' ? 'active' : ''}`}
-            onClick={() => onViewChange?.('insights')}
-          >
-            Insights
-          </button>
-        </nav>
 
-        {/* Right controls */}
-        <div className="flex items-center gap-2">
-
-          {/* Mobile nav */}
-          <div className="flex sm:hidden items-center gap-1">
-            <button
-              className={`nav-tab text-xs px-2.5 py-1 ${view === 'jobs' ? 'active' : ''}`}
-              onClick={() => onViewChange?.('jobs')}
-            >
+          {/* Desktop nav tabs */}
+          <nav className="hidden sm:flex items-center gap-1">
+            <button className={`nav-tab ${view === 'jobs' ? 'active' : ''}`} onClick={() => onViewChange?.('jobs')}>
               Jobs
             </button>
-            <button
-              className={`nav-tab text-xs px-2.5 py-1 ${view === 'companies' ? 'active' : ''}`}
-              onClick={() => onViewChange?.('companies')}
-            >
-              Cos.
+            <button className={`nav-tab ${view === 'companies' ? 'active' : ''}`} onClick={() => onViewChange?.('companies')}>
+              Companies
             </button>
-            <button
-              className={`nav-tab text-xs px-2.5 py-1 ${view === 'insights' ? 'active' : ''}`}
-              onClick={() => onViewChange?.('insights')}
-            >
-              ✦
+            <button className={`nav-tab ${view === 'insights' ? 'active' : ''}`} onClick={() => onViewChange?.('insights')}>
+              Insights
             </button>
-          </div>
+          </nav>
 
-          {user && (
-            <button
-              onClick={onSavedClick}
-              title="View saved jobs"
-              className="btn-dim relative px-3 py-1.5"
-              style={{ borderRadius: '9999px' }}
-            >
-              <span style={{ color: savedCount > 0 ? '#fb7185' : undefined }}>
-                {savedCount > 0 ? '♥' : '♡'}
-              </span>
-              <span className="hidden sm:inline ml-1">Saved</span>
-              {savedCount > 0 && (
-                <span
-                  className="absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none"
-                  style={{ background: '#ef4444' }}
-                >
-                  {savedCount > 9 ? '9+' : savedCount}
-                </span>
-              )}
-            </button>
-          )}
-
-          {user ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs hidden sm:block truncate max-w-[130px]" style={{ color: 'var(--text-3)' }}>
-                {user.email}
-              </span>
+          {/* Right controls */}
+          <div className="flex items-center gap-2">
+            {user && (
               <button
-                onClick={onLogout}
-                className="btn-dim"
-                style={{ borderRadius: '9999px', padding: '0.35rem 0.875rem' }}
+                onClick={onSavedClick}
+                title="Saved jobs"
+                className="btn-dim relative px-3 py-1.5"
               >
-                Sign out
+                <span style={{ color: savedCount > 0 ? '#fb7185' : undefined }}>
+                  {savedCount > 0 ? '♥' : '♡'}
+                </span>
+                <span className="hidden sm:inline ml-1 text-xs">Saved</span>
+                {savedCount > 0 && (
+                  <span
+                    className="absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none"
+                    style={{ background: '#ef4444' }}
+                  >
+                    {savedCount > 9 ? '9+' : savedCount}
+                  </span>
+                )}
               </button>
-            </div>
-          ) : (
-            <button onClick={onLoginClick} className="btn-gold" style={{ borderRadius: '9999px' }}>
-              Sign in
-            </button>
-          )}
+            )}
+
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs hidden md:block truncate max-w-[130px]" style={{ color: 'var(--text-3)' }}>
+                  {user.email}
+                </span>
+                <button onClick={onLogout} className="btn-dim text-xs">Sign out</button>
+              </div>
+            ) : (
+              <button onClick={onLoginClick} className="btn-gold text-xs sm:text-sm">
+                Sign in
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* ── Mobile bottom navigation bar ────────────────────────────────────── */}
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+        <button className={`mobile-nav-btn ${view === 'jobs' ? 'active' : ''}`} onClick={() => onViewChange?.('jobs')}>
+          <span className="nav-icon">💼</span>
+          <span className="nav-label">Jobs</span>
+        </button>
+        <button className={`mobile-nav-btn ${view === 'companies' ? 'active' : ''}`} onClick={() => onViewChange?.('companies')}>
+          <span className="nav-icon">🏢</span>
+          <span className="nav-label">Companies</span>
+        </button>
+        <button className={`mobile-nav-btn ${view === 'insights' ? 'active' : ''}`} onClick={() => onViewChange?.('insights')}>
+          <span className="nav-icon">📊</span>
+          <span className="nav-label">Insights</span>
+        </button>
+        {user ? (
+          <button className="mobile-nav-btn" onClick={onSavedClick}>
+            <span className="nav-icon" style={{ color: savedCount > 0 ? '#fb7185' : undefined }}>
+              {savedCount > 0 ? '♥' : '♡'}
+            </span>
+            <span className="nav-label" style={{ color: savedCount > 0 ? '#fb7185' : undefined }}>
+              {savedCount > 0 ? (savedCount > 9 ? '9+' : savedCount) : 'Saved'}
+            </span>
+          </button>
+        ) : (
+          <button className="mobile-nav-btn" onClick={onLoginClick}>
+            <span className="nav-icon">👤</span>
+            <span className="nav-label" style={{ color: '#00FF87' }}>Sign in</span>
+          </button>
+        )}
+      </nav>
+    </>
   )
 }
