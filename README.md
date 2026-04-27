@@ -13,19 +13,19 @@ Auth: Supabase Auth (JWT)
 AI/Scraping: Crawl4AI & DeepSeek API
 
 System Components
-Crawler Service: * Scrapes job boards using Crawl4AI.
+Crawler Service: Scrapes job boards using Crawl4AI.
 
 Sends raw data to DeepSeek API to extract structured fields: Role, Salary, Remote status, and CEFR Language Levels (A1-C2).
 
 Normalizes company names to prevent duplicate entries.
 
-Database Layer: * Hosted on Supabase.
+Database Layer: Hosted on Supabase.
 
 Uses PostgreSQL tsvector for full-text search.
 
 Stores relational data for Companies, Jobs, and User-Saved listings.
 
-API Layer: * Django handles business logic and serves endpoints to the frontend.
+API Layer: Django handles business logic and serves endpoints to the frontend.
 
 Validates Supabase JWTs to ensure secure access to user "Save" features.
 
