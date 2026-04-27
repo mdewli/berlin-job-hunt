@@ -1,4 +1,4 @@
-Overview
+Overview:
 Berlin Job Hunt is a full-stack application that aggregates and filters job postings specifically for the Berlin market. The system automates data collection, AI-driven classification, and user-specific job tracking.
 
 Core Tech Stack
